@@ -4,8 +4,13 @@
  * Drives headless Chrome over a viewport matrix and asserts:
  *   1. no horizontal overflow (and names the culprit element when there is)
  *   2. button-like touch targets are at least 44x44 CSS px
+ *   3. the hero fits above the fold, with nothing clipped past the viewport
  *
  * Inline text links are exempt from (2) per WCAG 2.5.8.
+ * (3) applies only where the viewport is at least MIN_HERO_FIT_HEIGHT tall —
+ * below that a full-height hero is not a reasonable goal and the hero is
+ * expected to scroll. This check exists because the suite once passed 42/42
+ * while the hero was visibly clipped on a phone: it only looked sideways.
  * Exits non-zero on any failure so it can gate a build.
  */
 import { spawn } from 'node:child_process';
@@ -36,7 +41,17 @@ const VIEWPORTS = [
   { w: 926, h: 428, label: 'phone landscape lg' },
   // 200% browser zoom at 1280 presents as a 640px viewport.
   { w: 640, h: 720, label: '1280 @ 200% zoom' },
+  // Short screens: wide but vertically cramped, which width-driven sizing
+  // alone cannot see. The first is a Dell Latitude 5480 with Chrome's chrome.
+  { w: 1366, h: 657, label: 'Latitude 5480' },
+  { w: 1280, h: 720, label: 'laptop short' },
+  { w: 1024, h: 600, label: 'netbook' },
+  { w: 375, h: 667, label: 'iPhone SE 2nd' },
+  { w: 360, h: 640, label: 'Android small' },
 ];
+
+/** Below this height a full-viewport hero is not attemptable; see header. */
+const MIN_HERO_FIT_HEIGHT = 600;
 
 const TYPES = {
   '.html': 'text/html',
@@ -120,7 +135,10 @@ const AUDIT = `(() => {
     const r = el.getBoundingClientRect();
     if (r.width === 0 && r.height === 0) continue;
     if (r.width <= 1 && r.height <= 1) continue;
-    if (r.height < 44 || r.width < 24) {
+    // Half-pixel tolerance: min-h-11 computes to exactly 44px, but subpixel
+    // layout can land at 43.99, which tripped this check at random while
+    // Math.round() below printed a reassuring "44".
+    if (r.height < 43.5 || r.width < 23.5) {
       small.push(
         el.tagName.toLowerCase() + ' "' + (el.textContent || '').trim().slice(0, 18) + '" ' +
         Math.round(r.width) + 'x' + Math.round(r.height)
@@ -129,7 +147,35 @@ const AUDIT = `(() => {
     }
   }
 
-  return JSON.stringify({ vw, overflow, culprits, small });
+  // Vertical fit: the hero must not overhang the fold, and neither may its
+  // last child. Reported for every viewport; enforced by the caller only when
+  // there is enough height to reasonably ask for it.
+  let hero = null;
+  const shell = document.querySelector('.hero-shell');
+  if (shell) {
+    const vh = window.innerHeight;
+    const box = shell.getBoundingClientRect();
+    const kids = shell.querySelectorAll('*');
+    let lowest = box.top, lowestEl = '';
+    for (const el of kids) {
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) continue;
+      if (r.bottom > lowest) {
+        lowest = r.bottom;
+        lowestEl = el.tagName.toLowerCase() +
+          (el.className && typeof el.className === 'string'
+            ? '.' + el.className.trim().split(/\\s+/)[0] : '');
+      }
+    }
+    hero = {
+      vh,
+      boxOverhang: Math.round(box.bottom - vh),
+      contentOverhang: Math.round(lowest - vh),
+      lowestEl,
+    };
+  }
+
+  return JSON.stringify({ vw, overflow, culprits, small, hero });
 })()`;
 
 const chrome = await findChrome();
@@ -222,6 +268,14 @@ for (const page of PAGES) {
     const problems = [];
     if (a.overflow > 1)
       problems.push(`overflow +${a.overflow}px → ${a.culprits.join('; ')}`);
+    if (a.hero && a.hero.vh >= MIN_HERO_FIT_HEIGHT) {
+      if (a.hero.contentOverhang > 1)
+        problems.push(
+          `hero clipped: content runs ${a.hero.contentOverhang}px past the fold (${a.hero.lowestEl})`,
+        );
+      else if (a.hero.boxOverhang > 1)
+        problems.push(`hero box overhangs fold by ${a.hero.boxOverhang}px`);
+    }
     if (a.small.length) problems.push(`small targets: ${a.small.join('; ')}`);
 
     const tag = `${String(vp.w).padStart(4)}×${String(vp.h).padEnd(4)} ${vp.label.padEnd(19)}`;

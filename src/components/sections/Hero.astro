@@ -8,13 +8,14 @@ import { profile } from '../../data/resume';
 <section class="hero-shell" aria-labelledby="hero-heading">
   <Container>
     {/*
-      Stacks below lg, splits 58/42 at lg+. Deliberately NOT split at 768 —
-      a side-by-side hero on a portrait tablet is cramped.
+      Stacks on phones, splits 58/42 from md (768px) up. Tablets get the same
+      4:5 card as desktop — as a stack the content ran ~700px tall with a small
+      floating circle; side by side it is ~410px and properly centred.
     */}
-    <div class="grid items-center gap-10 lg:grid-cols-[58fr_42fr] lg:gap-16">
-      <div class="order-2 lg:order-1">
+    <div class="grid items-center gap-[var(--hero-column-gap)] md:grid-cols-[58fr_42fr] md:gap-[clamp(2rem,4vw,4rem)]">
+      <div class="order-2 md:order-1">
         <p
-          class="hero-in mb-5 font-mono text-step-s tracking-[0.18em] text-muted uppercase"
+          class="hero-in mb-[var(--hero-eyebrow-gap)] font-mono text-step-s tracking-[0.18em] text-muted uppercase"
           style="animation-delay: 60ms"
         >
           {profile.role}
@@ -33,14 +34,14 @@ import { profile } from '../../data/resume';
         </h1>
 
         <p
-          class="hero-in mt-6 max-w-[38ch] text-step-1 text-muted"
+          class="hero-in mt-[var(--hero-lede-gap)] max-w-[38ch] text-step-1 text-muted"
           style="animation-delay: 200ms"
         >
           {profile.tagline}
         </p>
 
         <div
-          class="hero-in mt-9 flex flex-wrap items-center gap-3"
+          class="hero-in mt-[var(--hero-cta-gap)] flex flex-wrap items-center gap-3"
           style="animation-delay: 280ms"
         >
           <Button href="#work">View my work</Button>
@@ -50,7 +51,7 @@ import { profile } from '../../data/resume';
         </div>
 
         <ul
-          class="hero-in mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-step-s text-muted"
+          class="hero-in mt-[var(--hero-links-gap)] flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-step-s text-muted"
           style="animation-delay: 340ms"
         >
           <li>
@@ -84,7 +85,7 @@ import { profile } from '../../data/resume';
         </ul>
       </div>
 
-      <div class="hero-in order-1 lg:order-2" style="animation-delay: 160ms">
+      <div class="hero-in order-1 md:order-2" style="animation-delay: 160ms">
         <PhotoCard alt={`Portrait of ${profile.name}`} />
       </div>
     </div>

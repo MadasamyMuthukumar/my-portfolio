@@ -4,6 +4,11 @@ import ThemeToggle from './ThemeToggle.astro';
 import { profile, navLinks } from '../data/resume';
 ---
 
+{/*
+  This bar's height — min-h-16 (4rem) plus its 1px bottom border — is mirrored
+  by --nav-h in global.css, which the hero subtracts so it fills exactly the
+  space below here. Change one and you must change the other.
+*/}
 <header class="sticky top-0 z-40 border-b border-border/70 bg-paper/85 backdrop-blur-md">
   <Container>
     <nav

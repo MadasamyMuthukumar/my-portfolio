@@ -15,21 +15,31 @@ interface Props {
 const { src, alt = '', initials = 'MM' } = Astro.props;
 ---
 
-<div class="relative mx-auto w-[clamp(7.5rem,42vw,13.75rem)] md:w-[clamp(11rem,30vw,15rem)] lg:mx-0 lg:w-full lg:max-w-[21rem]">
-  {/* The one loud use of accent on the page. Desktop only — at phone sizes the
-      photo is a circle and the offset block would read as a smudge. */}
+{/*
+  Sized against BOTH axes. The width clamp alone knows nothing about vertical
+  room, so on a short screen the circle stayed large and pushed the CTAs below
+  the fold. min(…, 30vh) makes one rule do both jobs: it shrinks the photo when
+  height is scarce and lets it grow into spare vertical space on tablets.
+
+  The card's 40vh cap is looser than the circle's because in a side-by-side
+  grid the photo only adds height once it exceeds the text column — capping it
+  tighter just made it look undersized without buying any vertical room.
+*/}
+<div class="relative mx-auto w-[min(clamp(7.5rem,38vw,18rem),30vh)] md:mx-0 md:w-full md:max-w-[min(21rem,40vh)]">
+  {/* The one loud use of accent on the page. Card layouts only — at phone
+      sizes the photo is a circle and the offset block would read as a smudge. */}
   <div
     aria-hidden="true"
-    class="absolute inset-0 hidden translate-x-3 translate-y-3 rounded-2xl bg-accent lg:block"
+    class="absolute inset-0 hidden translate-x-3 translate-y-3 rounded-2xl bg-accent md:block"
   ></div>
 
-  <div class="relative aspect-square overflow-hidden rounded-full border border-border bg-surface lg:aspect-[4/5] lg:rounded-2xl">
+  <div class="relative aspect-square overflow-hidden rounded-full border border-border bg-surface md:aspect-[4/5] md:rounded-2xl">
     {src ? (
       <Image
         src={src}
         alt={alt}
         widths={[240, 360, 480, 720]}
-        sizes="(min-width: 1024px) 21rem, (min-width: 768px) 15rem, 42vw"
+        sizes="(min-width: 768px) 21rem, 38vw"
         class="h-full w-full object-cover"
         loading="eager"
         fetchpriority="high"

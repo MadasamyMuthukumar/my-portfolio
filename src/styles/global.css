@@ -52,6 +52,10 @@
   --measure: 64ch;
   --content-max: 68rem;
 
+  /* Height of the sticky nav INCLUDING its 1px bottom border.
+     Must stay in sync with Nav.astro's `min-h-16` (4rem). */
+  --nav-h: calc(4rem + 1px);
+
   --paper: #fcfbf8;
   --surface: #f5f3ee;
   --ink: #14151a;
@@ -250,21 +254,32 @@ code,
 /* ---------------------------------------------------------------------------
    Hero shell
 
-   A full-height centred hero overflows on a landscape phone (844×390), so
-   below 500px of height it reverts to intrinsic height with tighter padding.
+   Sized against BOTH axes. The type scale and photo are driven by viewport
+   width, which alone says nothing about how much vertical room exists — a
+   1366×657 laptop would otherwise get identical sizing to a 1366×1200 monitor
+   and clip. Every value below is continuous, so there is no device-specific
+   rule to keep in sync.
    --------------------------------------------------------------------------- */
 .hero-shell {
-  min-height: 100dvh;
+  /* Vertical rhythm that compresses on short screens and opens up on tall
+     ones. Consumed by Hero.astro rather than fixed Tailwind spacing. */
+  --hero-pad: clamp(1rem, 4vh, 4.5rem);
+  --hero-column-gap: clamp(1rem, 3vh, 2.5rem);
+  --hero-eyebrow-gap: clamp(0.625rem, 1.6vh, 1.25rem);
+  --hero-lede-gap: clamp(0.75rem, 2vh, 1.5rem);
+  --hero-cta-gap: clamp(1rem, 2.6vh, 2.25rem);
+  --hero-links-gap: clamp(0.75rem, 2.2vh, 2rem);
+
+  /* Subtracting --nav-h is what makes this actually full-height: the hero
+     starts below the sticky nav, so a bare 100svh would always overhang the
+     fold by the nav's height and centre its content half that far too low.
+
+     svh, not dvh: dvh grows as mobile browser chrome hides, resizing the hero
+     mid-scroll. svh is the always-visible height. */
+  min-height: calc(100svh - var(--nav-h));
   display: flex;
   align-items: center;
-  padding-block: clamp(5rem, 12vh, 8rem) clamp(3rem, 8vh, 5rem);
-}
-
-@media (max-height: 500px) and (orientation: landscape) {
-  .hero-shell {
-    min-height: auto;
-    padding-block: 5rem 3rem;
-  }
+  padding-block: var(--hero-pad);
 }
 
 /* Sticky section labels are a desktop affordance — on short viewports they
