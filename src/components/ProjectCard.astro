@@ -2,21 +2,45 @@
 import { Image } from 'astro:assets';
 import Card from './primitives/Card.astro';
 import type { CollectionEntry } from 'astro:content';
+import Allbound360Mark from '../assets/allbound360-logo.svg';
 
 interface Props {
   project: CollectionEntry<'projects'>;
 }
 
+/**
+ * Brand marks, keyed by entry id. A product with a real logo is better served
+ * by it than by a screenshot shrunk to thumbnail size, where the UI turns to
+ * texture. Kept here rather than in frontmatter because an inlined SVG has to
+ * be a component to pick up `currentColor` — `image()` would ship it as an
+ * <img> and the wordmark would vanish on the dark theme.
+ */
+const marks: Record<string, typeof Allbound360Mark | undefined> = {
+  allbound360: Allbound360Mark,
+};
+
 const { project } = Astro.props;
 const { data } = project;
+const Mark = marks[project.id];
+
+// A dedicated thumbnail wins; otherwise the case-study hero stands in.
+const thumb = data.thumb ?? data.cover;
+const thumbAlt = (data.thumb ? data.thumbAlt : data.coverAlt) ?? '';
 ---
 
 <Card href={`/projects/${project.id}`} class="flex h-full flex-col">
   <div class="mb-5 aspect-[16/10] overflow-hidden rounded-lg border border-border bg-surface">
-    {data.cover ? (
+    {Mark ? (
+      <div class="brand-mark flex h-full w-full items-center justify-center px-6">
+        <Mark
+          aria-hidden="true"
+          class="w-[62%] max-w-[15rem] text-ink transition-transform duration-300 motion-safe:group-hover:scale-[1.02]"
+        />
+      </div>
+    ) : thumb ? (
       <Image
-        src={data.cover}
-        alt={data.coverAlt ?? ''}
+        src={thumb}
+        alt={thumbAlt}
         widths={[400, 640, 900]}
         sizes="(min-width: 1024px) 32rem, (min-width: 640px) 45vw, 90vw"
         class="h-full w-full object-cover transition-transform duration-300 motion-safe:group-hover:scale-[1.02]"
@@ -48,3 +72,17 @@ const { data } = project;
     ))}
   </ul>
 </Card>
+
+<style>
+  /*
+    The one brand colour on the page that is not ours, so it is set here rather
+    than added to the global palette. light-dark() keys off the `color-scheme`
+    :root already declares, which is what makes it follow BOTH the system theme
+    and the toggle — the `dark:` variant only covers the toggle. Where the
+    function is unsupported the declaration is dropped and the SVG falls back
+    to the brand value baked into its fill.
+  */
+  .brand-mark {
+    --brand-allbound: light-dark(#2563eb, #7aa5ff);
+  }
+</style>

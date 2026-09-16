@@ -19,8 +19,16 @@ const projects = defineCollection({
       period: z.string(),
       date: z.coerce.date(),
       tags: z.array(z.string()).default([]),
+      /** Hero image on the case-study page. Omit to keep that page imageless. */
       cover: image().optional(),
       coverAlt: z.string().optional(),
+      /**
+       * Card thumbnail on the homepage. Separate from `cover` because the two
+       * jobs differ: a thumbnail can be a mark or a crop that would make a
+       * poor full-width hero. Falls back to `cover` when absent.
+       */
+      thumb: image().optional(),
+      thumbAlt: z.string().optional(),
       featured: z.boolean().default(false),
       /**
        * primary   = large card + generated case-study page and OG image
