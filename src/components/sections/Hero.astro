@@ -91,3 +91,22 @@ import { profile } from '../../data/resume';
     </div>
   </Container>
 </section>
+
+{/*
+  The transition into About. Filled with --surface-warm so it reads as that
+  section rising up rather than a decorative stripe, which is why About drops
+  its own rule. preserveAspectRatio="none" lets it stretch to any width instead
+  of cropping, and the shallow amplitude keeps it from looking dated.
+*/}
+<svg
+  class="hero-wave"
+  viewBox="0 0 1440 80"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path
+    d="M0 44C180 8 360 0 600 22c220 20 340 46 560 38 120-4 220-22 280-38v58H0z"
+    fill="var(--surface-warm)"
+  ></path>
+</svg>

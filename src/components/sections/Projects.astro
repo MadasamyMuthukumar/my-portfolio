@@ -27,14 +27,19 @@ const secondary = all
   );
 ---
 
-<Section id="work" index="03" label="Work" title="What I've built">
+<Section id="work" index="03" label="Work" title="What I've built" tone="warm">
   {/*
-    Intrinsic grid: reflows on its own without breakpoints. The min(100%, …)
-    is what prevents overflow at 320px.
+    Below md this is a scroll-snap track: one card per view with the next
+    peeking, and swipe working with no JavaScript at all. From md up the same
+    markup becomes the intrinsic grid again (see .card-track in global.css).
+    The track owns its overflow, so the document never scrolls sideways.
   */}
   <ul
-    class="grid gap-6"
-    style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));"
+    id="work-track"
+    class="card-track"
+    role="region"
+    aria-label="Selected projects"
+    tabindex="0"
   >
     {primary.map((project) => (
       <li class="reveal">
@@ -42,6 +47,73 @@ const secondary = all
       </li>
     ))}
   </ul>
+
+  {/* Arrows and dots are enhancement only — swiping already works without them. */}
+  {primary.length > 1 && (
+    <div
+      id="work-controls"
+      class="mt-5 flex items-center justify-between md:hidden"
+    >
+      <ul class="flex items-center gap-2" aria-hidden="true">
+        {primary.map((_, i) => (
+          <li
+            class="card-dot h-1.5 w-1.5 rounded-full"
+            data-dot
+            aria-current={i === 0 ? 'true' : 'false'}
+          />
+        ))}
+      </ul>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          data-prev
+          aria-controls="work-track"
+          aria-label="Previous project"
+          class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-muted transition-colors hover:border-accent hover:text-accent-text disabled:opacity-40"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M10 3 5 8l5 5"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button
+          type="button"
+          data-next
+          aria-controls="work-track"
+          aria-label="Next project"
+          class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-muted transition-colors hover:border-accent hover:text-accent-text disabled:opacity-40"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M6 3l5 5-5 5"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  )}
 
   {secondary.length > 0 && (
     <div class="mt-16 sm:mt-20">
@@ -64,3 +136,65 @@ const secondary = all
     </div>
   )}
 </Section>
+
+<script is:inline>
+  (() => {
+    const track = document.getElementById('work-track');
+    const controls = document.getElementById('work-controls');
+    if (!track || !controls) return;
+
+    const cards = [...track.children];
+    const dots = [...controls.querySelectorAll('[data-dot]')];
+    const prev = controls.querySelector('[data-prev]');
+    const next = controls.querySelector('[data-next]');
+
+    /** Index of the card nearest the track's horizontal centre. */
+    const current = () => {
+      const mid = track.scrollLeft + track.clientWidth / 2;
+      let best = 0;
+      let bestGap = Infinity;
+      cards.forEach((card, i) => {
+        const gap = Math.abs(card.offsetLeft + card.offsetWidth / 2 - mid);
+        if (gap < bestGap) {
+          bestGap = gap;
+          best = i;
+        }
+      });
+      return best;
+    };
+
+    const go = (i) => {
+      const card = cards[Math.max(0, Math.min(cards.length - 1, i))];
+      if (!card) return;
+      track.scrollTo({
+        left: card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2,
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'auto'
+          : 'smooth',
+      });
+    };
+
+    const sync = () => {
+      const i = current();
+      dots.forEach((dot, n) =>
+        dot.setAttribute('aria-current', String(n === i)),
+      );
+      prev.disabled = i === 0;
+      next.disabled = i === cards.length - 1;
+    };
+
+    prev.addEventListener('click', () => go(current() - 1));
+    next.addEventListener('click', () => go(current() + 1));
+    track.addEventListener('scroll', () => {
+      // Coalesce scroll events into one update per frame.
+      if (track.dataset.raf) return;
+      track.dataset.raf = '1';
+      requestAnimationFrame(() => {
+        delete track.dataset.raf;
+        sync();
+      });
+    });
+
+    sync();
+  })();
+</script>

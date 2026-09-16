@@ -7,8 +7,16 @@ interface Props {
   index?: string;
   label?: string;
   title?: string;
-  /** Tinted background — used sparingly, at most once per page. */
-  tinted?: boolean;
+  /**
+   * Background tone. Sections alternate paper / warm down the page so the
+   * rhythm comes from the surface itself rather than from dividers alone.
+   */
+  tone?: 'paper' | 'warm';
+  /**
+   * Draw the gradient rule at the top edge. Off for the section that follows
+   * the hero, where the wave already does the dividing.
+   */
+  rule?: boolean;
   class?: string;
 }
 
@@ -17,7 +25,8 @@ const {
   index,
   label,
   title,
-  tinted = false,
+  tone = 'paper',
+  rule = true,
   class: className = '',
 } = Astro.props;
 ---
@@ -25,8 +34,9 @@ const {
 <section
   id={id}
   class:list={[
-    'scroll-mt-20 border-t border-border',
-    tinted && 'bg-surface',
+    'scroll-mt-20',
+    rule && 'section-rule',
+    tone === 'warm' && 'bg-surface-warm',
     className,
   ]}
   style="padding-block: var(--spacing-section);"

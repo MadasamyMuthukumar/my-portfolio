@@ -23,6 +23,7 @@
 
   --color-paper: var(--paper);
   --color-surface: var(--surface);
+  --color-surface-warm: var(--surface-warm);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-border: var(--border);
@@ -68,6 +69,14 @@
   --accent-text: #c2410c;
   --accent-contrast: #ffffff;
 
+  /* Warm tones derived from the accent, so dark mode re-tones automatically
+     rather than needing a hand-maintained parallel palette.
+     Measured on the resulting #fdf6f1: ink 17.04:1 AAA, muted 4.93:1 AA. */
+  --surface-warm: color-mix(in oklab, var(--accent) 3.5%, var(--paper));
+  --glow-strong: color-mix(in oklab, var(--accent) 16%, transparent);
+  --glow-soft: color-mix(in oklab, var(--accent) 7%, transparent);
+  --rule-accent: color-mix(in oklab, var(--accent) 45%, transparent);
+
   color-scheme: light;
 }
 
@@ -85,6 +94,12 @@
     --accent-text: #ff7a45;
     --accent-contrast: #16130f;
 
+    /* Measured on the resulting #1a1516: ink 15.32:1 AAA, muted 6.56:1 AA. */
+    --surface-warm: color-mix(in oklab, var(--accent) 6%, var(--paper));
+    --glow-strong: color-mix(in oklab, var(--accent) 12%, transparent);
+    --glow-soft: color-mix(in oklab, var(--accent) 5%, transparent);
+    --rule-accent: color-mix(in oklab, var(--accent) 38%, transparent);
+
     color-scheme: dark;
   }
 }
@@ -99,6 +114,12 @@
   --accent: #ff7a45;
   --accent-text: #ff7a45;
   --accent-contrast: #16130f;
+
+  /* Measured on the resulting #1a1516: ink 15.32:1 AAA, muted 6.56:1 AA. */
+  --surface-warm: color-mix(in oklab, var(--accent) 6%, var(--paper));
+  --glow-strong: color-mix(in oklab, var(--accent) 12%, transparent);
+  --glow-soft: color-mix(in oklab, var(--accent) 5%, transparent);
+  --rule-accent: color-mix(in oklab, var(--accent) 38%, transparent);
 
   color-scheme: dark;
 }
@@ -280,6 +301,38 @@ code,
   display: flex;
   align-items: center;
   padding-block: var(--hero-pad);
+
+  /* isolation keeps the -1 pseudo-element behind the hero's own content
+     without escaping behind the page background. */
+  position: relative;
+  isolation: isolate;
+}
+
+/* Warm aurora. Two soft radials, no hard edges — the point is atmosphere, not
+   a visible shape. Both derive from --accent, so dark mode gets a low ember
+   rather than a hotspot. */
+.hero-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      55% 50% at var(--glow-x, 50%) var(--glow-y, 22%),
+      var(--glow-strong),
+      transparent 70%
+    ),
+    radial-gradient(80% 60% at 12% 0%, var(--glow-soft), transparent 68%);
+}
+
+/* The photo sits top-centre on phones and right on the split layout, so the
+   stronger glow follows it. */
+@media (min-width: 768px) {
+  .hero-shell {
+    --glow-x: 74%;
+    --glow-y: 46%;
+  }
 }
 
 /* Sticky section labels are a desktop affordance — on short viewports they
@@ -399,4 +452,187 @@ code,
   a {
     text-decoration: none;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Section rhythm
+
+   A flat hairline made every boundary read the same. The rule now carries a
+   hint of accent toward the centre, and sections alternate paper / warm so the
+   page has rhythm without stripes.
+   --------------------------------------------------------------------------- */
+.section-rule {
+  position: relative;
+}
+
+.section-rule::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--rule-accent) 30%,
+    var(--rule-accent) 70%,
+    transparent
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   Hero wave
+
+   The transition into the first section. Filled with --surface-warm so it
+   reads as that section rising up, not as a decorative stripe.
+   --------------------------------------------------------------------------- */
+.hero-wave {
+  display: block;
+  width: 100%;
+  height: clamp(3.5rem, 7vw, 5.5rem);
+  /* Fractional layout widths can leave a hairline of paper under the wave. */
+  margin-bottom: -1px;
+}
+
+/* ---------------------------------------------------------------------------
+   Mobile nav drawer
+   --------------------------------------------------------------------------- */
+.nav-drawer[open] .nav-burger-top {
+  transform: translateY(4px) rotate(45deg);
+}
+
+.nav-drawer[open] .nav-burger-bottom {
+  transform: translateY(-4px) rotate(-45deg);
+}
+
+.nav-drawer[open] .nav-burger-mid {
+  opacity: 0;
+}
+
+.nav-burger-top,
+.nav-burger-mid,
+.nav-burger-bottom {
+  transform-origin: center;
+  transition:
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 160ms ease-out;
+}
+
+/* Each item flows toward the accent rather than snapping, so dragging across
+   the list reads as colour moving. Bound to :focus-visible too. */
+.nav-drawer-link {
+  position: relative;
+  transition:
+    background-color 220ms ease-out,
+    color 220ms ease-out,
+    padding-left 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-drawer-link::before {
+  content: '';
+  position: absolute;
+  inset-block: 0.5rem;
+  left: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-drawer-link:hover,
+.nav-drawer-link:focus-visible {
+  background-color: color-mix(in oklab, var(--accent) 8%, transparent);
+  color: var(--accent-text);
+  padding-left: 1.25rem;
+}
+
+.nav-drawer-link:hover::before,
+.nav-drawer-link:focus-visible::before {
+  transform: scaleY(1);
+}
+
+/* Slide the drawer open where ::details-content is supported; elsewhere it
+   simply appears, the same graceful-degradation pattern the reveals use. */
+@supports (selector(::details-content)) and (interpolate-size: allow-keywords) {
+  @media (prefers-reduced-motion: no-preference) {
+    .nav-drawer {
+      interpolate-size: allow-keywords;
+    }
+
+    .nav-drawer::details-content {
+      block-size: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition:
+        block-size 280ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 200ms ease-out,
+        content-visibility 280ms allow-discrete;
+    }
+
+    .nav-drawer[open]::details-content {
+      block-size: auto;
+      opacity: 1;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Work carousel
+
+   Below md the card list becomes a scroll-snap track. Swiping works with no
+   JavaScript at all; the arrows and dots are enhancement on top.
+   --------------------------------------------------------------------------- */
+.card-track {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  /* Let cards sit flush with the container edge while still snapping. */
+  padding-bottom: 0.5rem;
+}
+
+.card-track::-webkit-scrollbar {
+  display: none;
+}
+
+.card-track > li {
+  flex: 0 0 86%;
+  scroll-snap-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-track {
+    scroll-behavior: auto;
+  }
+}
+
+/* From md the track dissolves back into the intrinsic grid. */
+@media (min-width: 768px) {
+  .card-track {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: 1.5rem;
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+
+  .card-track > li {
+    flex: initial;
+  }
+}
+
+.card-dot {
+  background-color: var(--border-strong);
+  transition:
+    background-color 200ms ease-out,
+    width 200ms ease-out;
+}
+
+.card-dot[aria-current='true'] {
+  background-color: var(--accent);
+  width: 1.25rem;
 }

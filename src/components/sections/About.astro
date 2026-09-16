@@ -9,7 +9,14 @@ const facts = [
 ];
 ---
 
-<Section id="about" index="01" label="About" title="A little context">
+<Section
+  id="about"
+  index="01"
+  label="About"
+  title="A little context"
+  tone="warm"
+  rule={false}
+>
   <div class="grid gap-10 lg:grid-cols-[1fr_auto] lg:gap-16">
     <div class="reveal space-y-5 text-step-1 text-muted">
       {profile.about.map((para) => (

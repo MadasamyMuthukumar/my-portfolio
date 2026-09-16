@@ -40,12 +40,13 @@ import { profile, navLinks } from '../data/resume';
         <ThemeToggle />
 
         {/*
-          Below md, a native <details> disclosure replaces the link row.
-          Semantic, keyboard-accessible, and needs no JavaScript framework.
+          Below md, a native <details> drives a full-width drawer. Kept as
+          <details> rather than a div plus JS because it is already
+          keyboard-operable and Escape-closes for free.
         */}
-        <details id="nav-menu" class="relative md:hidden">
+        <details id="nav-menu" class="nav-drawer md:hidden">
           <summary
-            class="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-md border border-border text-muted transition-colors hover:text-ink [&::-webkit-details-marker]:hidden"
+            class="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full border border-border text-muted transition-colors hover:text-ink [&::-webkit-details-marker]:hidden"
             aria-label="Open navigation menu"
           >
             <svg
@@ -56,7 +57,22 @@ import { profile, navLinks } from '../data/resume';
               aria-hidden="true"
             >
               <path
-                d="M2 5h14M2 9h14M2 13h14"
+                class="nav-burger-top"
+                d="M2 5h14"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              ></path>
+              <path
+                class="nav-burger-mid"
+                d="M2 9h14"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              ></path>
+              <path
+                class="nav-burger-bottom"
+                d="M2 13h14"
                 stroke="currentColor"
                 stroke-width="1.5"
                 stroke-linecap="round"
@@ -64,20 +80,46 @@ import { profile, navLinks } from '../data/resume';
             </svg>
           </summary>
 
-          <ul class="absolute right-0 z-50 mt-2 w-44 rounded-xl border border-border bg-paper p-2 shadow-[0_12px_40px_-12px_rgb(0_0_0/0.25)]">
-            {navLinks.map((link) => (
-              <li>
-                <a
-                  href={link.href}
-                  class="flex min-h-11 items-center rounded-lg px-3 text-step-0 text-muted transition-colors hover:bg-surface hover:text-ink"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+          {/*
+            Anchored to the header, not this button, so the panel spans the
+            full width and reads as a drawer coming down from the bar.
+          */}
+          {/* Solid, not translucent: at 95% the hero's monogram read through the
+                panel and competed with the links. */}
+          <div class="absolute inset-x-0 top-full z-50 border-b border-border bg-paper shadow-[0_18px_40px_-24px_rgb(0_0_0/0.45)]">
+            <ul class="px-[var(--spacing-gutter)] py-3">
+              {navLinks.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    class="nav-drawer-link flex min-h-12 items-center rounded-lg px-3 text-step-1 text-muted"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </details>
       </div>
     </nav>
   </Container>
 </header>
+
+<script is:inline>
+  (() => {
+    const drawer = document.getElementById('nav-menu');
+    if (!drawer) return;
+
+    // The links are same-page anchors, so without this the drawer would stay
+    // open on top of the content the user just jumped to.
+    drawer.addEventListener('click', (e) => {
+      if (e.target.closest('a')) drawer.open = false;
+    });
+
+    // Tapping anywhere else dismisses it, matching what a drawer implies.
+    document.addEventListener('click', (e) => {
+      if (drawer.open && !drawer.contains(e.target)) drawer.open = false;
+    });
+  })();
+</script>
