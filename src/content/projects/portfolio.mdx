@@ -1,0 +1,56 @@
+---
+title: This portfolio
+summary: A statically generated portfolio built to hold a strict performance budget — zero JavaScript on the homepage, and responsiveness enforced by an automated browser test rather than asserted.
+role: Personal project
+period: '2026'
+date: 2026-09-16
+featured: false
+tags:
+  - Astro
+  - TypeScript
+  - Tailwind CSS
+  - MDX
+repo: https://github.com/MadasamyMuthukumar
+stats:
+  - label: JS on homepage
+    value: 0 requests
+  - label: Layout shift
+    value: CLS 0
+  - label: Rendering
+    value: Fully static
+---
+
+The site you're reading. Built with Astro 7 and Tailwind 4, output as static
+HTML with no backend.
+
+## The constraint
+
+The homepage ships **zero JavaScript requests**. Not "a small bundle" — none.
+Every interactive piece that would normally justify a framework was examined
+against what it actually costs.
+
+The clearest example is the theme toggle. Mounting it as a React island worked
+fine, and shipped **216 KB of React runtime for a single button**. It is now a
+~600 byte inline script, and React is reserved for places that genuinely need
+component state.
+
+## Responsiveness as a test, not a claim
+
+Rather than eyeballing breakpoints, the build drives headless Chrome over a
+matrix of viewports — 320 through 2560, plus landscape phones and 200% browser
+zoom — and asserts that no layout produces horizontal overflow and that every
+touch target clears 44px.
+
+The layout is built to make that easy to pass: fluid `clamp()` type and spacing
+so nothing resizes at a breakpoint, container queries so cards respond to their
+own slot rather than the viewport, and intrinsic grids that reflow on their own.
+
+## Details worth the effort
+
+- **Scroll-driven animations in pure CSS** (`animation-timeline: view()`),
+  guarded by `@supports` so content is never stuck invisible where unsupported.
+- **Contrast-verified palette** — every colour pair computed against WCAG
+  thresholds, which forced a split accent token because the vivid orange fails
+  body-text contrast.
+- **Content collections** with Zod schemas, so malformed frontmatter fails the
+  build instead of rendering an empty page.

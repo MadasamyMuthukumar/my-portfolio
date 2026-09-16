@@ -1,0 +1,29 @@
+---
+import Section from '../primitives/Section.astro';
+import Button from '../primitives/Button.astro';
+import { profile } from '../../data/resume';
+---
+
+<Section id="contact" index="06" label="Contact">
+  <div class="reveal max-w-[34ch]">
+    <h2 class="text-step-4 font-semibold">
+      Let's build something{' '}
+      <span class="font-display font-normal italic tracking-normal">good</span>.
+    </h2>
+    <p class="mt-5 text-step-1 text-muted">
+      I'm open to frontend and full-stack roles, especially on products where AI
+      does real work.
+    </p>
+
+    <div class="mt-9 flex flex-wrap items-center gap-3">
+      <Button href={`mailto:${profile.email}`}>Email me</Button>
+      <Button href={profile.linkedin} variant="ghost" external>
+        LinkedIn
+      </Button>
+    </div>
+
+    <p class="mt-6 font-mono text-step-s break-anywhere text-muted">
+      {profile.email}
+    </p>
+  </div>
+</Section>

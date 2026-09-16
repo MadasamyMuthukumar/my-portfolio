@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import Container from '../components/primitives/Container.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Button from '../components/primitives/Button.astro';
+import ResumeDocument from '../components/ResumeDocument.astro';
+import { profile } from '../data/resume';
+
+const PDF = '/madasamy-muthukumar-resume.pdf';
+---
+
+<Base
+  title={`Résumé — ${profile.name}`}
+  description={`Résumé of ${profile.name}, ${profile.role} based in ${profile.location}.`}
+>
+  <div class="screen-only">
+    <Nav />
+  </div>
+
+  <main id="content" class="py-12 sm:py-16">
+    <Container class="resume-sheet max-w-[46rem]">
+      <div class="screen-only mb-10 flex flex-wrap items-center justify-between gap-4">
+        <a
+          href="/"
+          class="inline-flex min-h-11 items-center font-mono text-step-s text-muted transition-colors hover:text-accent-text"
+        >
+          ← Back
+        </a>
+        <Button href={PDF} download>
+          Download PDF
+        </Button>
+      </div>
+
+      {/* includePhone omitted: the number never reaches the public markup. */}
+      <ResumeDocument />
+    </Container>
+  </main>
+
+  <div class="screen-only">
+    <Footer />
+  </div>
+</Base>

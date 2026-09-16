@@ -1,0 +1,80 @@
+---
+title: Allbound360
+summary: An end-to-end LinkedIn automation product combining inbound content growth with outbound prospecting — campaign execution, lead extraction, enrichment and automated outreach.
+role: Full Stack Developer · GoZen Technologies
+period: 2024 — Present
+date: 2025-01-15
+featured: true
+tags:
+  - React
+  - TypeScript
+  - NestJS
+  - PostgreSQL
+  - Redis
+  - BullMQ
+  - LLM APIs
+stats:
+  - label: Product surface
+    value: Inbound + Outbound + AI-SDR
+  - label: My scope
+    value: Frontend, APIs, workers, integrations
+  - label: Architecture
+    value: Multi-tenant with RBAC
+---
+
+Allbound360 is a LinkedIn growth platform built at GoZen Technologies. It
+covers both halves of the funnel — publishing content that attracts inbound
+interest, and running outbound prospecting campaigns against it — inside one
+multi-tenant product that agencies can operate on behalf of several clients.
+
+I worked across the whole stack: the React interfaces, the NestJS APIs behind
+them, the background workers that do the slow work, and the third-party
+integrations that connect it all to LinkedIn.
+
+## Inbound — the content engine
+
+The inbound half is built around **Content Brain**, which turns a brief into
+publishable LinkedIn content. From there the product handles post creation,
+image carousel and video generation, scheduling, and a trackable content
+calendar for planning what goes out and when.
+
+The interesting frontend problem here was **generation latency**. Producing a
+carousel or a video is not instant, and a spinner for twenty seconds feels
+broken. The generation surfaces stream over **SSE**, so text appears as it is
+produced and long-running media jobs report progress instead of blocking. The
+calendar then had to stay responsive while holding a month of scheduled items,
+each with its own live status.
+
+## Outbound — campaigns and sequencing
+
+The outbound half handles lead discovery, campaign sequencing, personalisation,
+follow-ups, and the actual LinkedIn execution.
+
+Almost none of this can happen in a request cycle. Campaign steps fire on
+schedules, LinkedIn actions have to be paced to stay within platform limits,
+and enrichment depends on third-party APIs that fail intermittently. All of it
+runs through **BullMQ queues and worker jobs**, with retries and scheduling, so
+a slow or failing external call delays one step rather than breaking a
+campaign.
+
+## AI-SDR — agent-driven qualification
+
+The newest layer applies LLM-driven decisions to the funnel: ICP-driven lead
+discovery and qualification, lead enrichment, signal-based workflows, and
+scheduled agent runs.
+
+This is where **multi-step agent orchestration** and **tool calling** earn their
+place. An agent run reads signals, decides which leads qualify, enriches them,
+and hands the result to the same outbound machinery. The engineering problem is
+less "call an LLM" and more making non-deterministic decisions safe to run
+unattended on a schedule — grounding them in real account data, and keeping
+every action reversible and auditable.
+
+## Platform work underneath
+
+- **Multi-tenancy with RBAC** — workspaces and team management shaped for
+  agencies, so access is scoped across shared workspaces and members.
+- **Integrations** — Auth0 for authentication, Stripe for payments and
+  subscriptions, plus LinkedIn APIs, Apify and RapidAPI for data and execution.
+- **Async everywhere** — queues, Pub/Sub and worker jobs for anything
+  long-running or scheduled.

@@ -1,94 +1,239 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/inter';
 
-/* Let `dark:` utilities respond to the data-theme attribute set by the
-   pre-paint script in Base.astro. */
+/* Display — used for the name in the hero and little else. */
+@import '@fontsource/instrument-serif/400.css';
+@import '@fontsource/instrument-serif/400-italic.css';
+/* Body / UI */
+@import '@fontsource-variable/inter';
+/* Labels, eyebrows, tech chips */
+@import '@fontsource-variable/jetbrains-mono';
+
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-/* `inline` makes the generated utilities reference the custom property rather
-   than copying its value, so the :root overrides below actually propagate. */
-@theme inline {
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+/* ---------------------------------------------------------------------------
+   Tokens
 
-  --color-bg: var(--bg);
-  --color-fg: var(--fg);
+   `inline` makes generated utilities reference the custom property rather than
+   copying its value, so the theme overrides further down actually propagate.
+   --------------------------------------------------------------------------- */
+@theme inline {
+  --font-display: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
   --color-muted: var(--muted);
-  --color-accent: var(--accent);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-accent-contrast: var(--accent-contrast);
 }
 
 @theme {
-  /* Fluid type scale — clamp() scales between mobile and desktop without a
-     single media query. */
-  --text-step-s: clamp(0.83rem, 0.17vw + 0.79rem, 0.94rem);
-  --text-step-0: clamp(1rem, 0.34vw + 0.91rem, 1.19rem);
-  --text-step-1: clamp(1.2rem, 0.58vw + 1.05rem, 1.5rem);
-  --text-step-2: clamp(1.44rem, 0.97vw + 1.2rem, 1.9rem);
-  --text-step-3: clamp(1.73rem, 1.56vw + 1.34rem, 2.38rem);
-  --text-step-4: clamp(2.07rem, 2.42vw + 1.47rem, 3rem);
+  /* Fluid type scale. Nothing resizes at a breakpoint — it all scales
+     continuously, which is what keeps the layout honest between 1024 and 1280. */
+  --text-step-s: clamp(0.8rem, 0.14vw + 0.77rem, 0.875rem);
+  --text-step-0: clamp(1rem, 0.25vw + 0.94rem, 1.125rem);
+  --text-step-1: clamp(1.125rem, 0.4vw + 1.03rem, 1.375rem);
+  --text-step-2: clamp(1.375rem, 0.75vw + 1.2rem, 1.875rem);
+  --text-step-3: clamp(1.75rem, 1.4vw + 1.4rem, 2.5rem);
+  --text-step-4: clamp(2.25rem, 2.6vw + 1.6rem, 3.5rem);
+  --text-step-5: clamp(2.5rem, 6vw + 1.2rem, 5.5rem);
+
+  /* Fluid vertical rhythm between sections. */
+  --spacing-section: clamp(4.5rem, 11vw, 9rem);
+  --spacing-gutter: clamp(1.25rem, 4vw, 2.5rem);
 }
 
 :root {
-  /* Editorial line length — the single biggest readability lever. */
-  --measure: 68ch;
+  --measure: 64ch;
+  --content-max: 68rem;
 
-  --bg: #fcfcfc;
-  --fg: #16161a;
-  --muted: #6b6b76;
-  --accent: #2563eb;
-  --border: #e4e4e8;
+  --paper: #fcfbf8;
+  --surface: #f5f3ee;
+  --ink: #14151a;
+  --muted: #6b6b74;
+  --border: #e7e4db;
+  --border-strong: #d4d0c4;
+  --accent: #ff5a1f;
+  /* Vivid accent fails body-text contrast (3.01:1). Accent-coloured TEXT uses
+     this darker pairing instead (5.00:1, AA). */
+  --accent-text: #c2410c;
+  --accent-contrast: #ffffff;
 
   color-scheme: light;
 }
 
-/* System preference, unless the user has explicitly chosen light. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #0e0e11;
-    --fg: #ededf0;
-    --muted: #9a9aa5;
-    --accent: #7aa2f7;
-    --border: #26262d;
+    --paper: #0e0f12;
+    --surface: #17181d;
+    --ink: #ececef;
+    --muted: #9b9ba6;
+    --border: #26262e;
+    --border-strong: #3a3a45;
+    /* Softer than #FF5A1F, which is uncomfortably hot on a dark ground.
+       7.41:1 — passes AAA, so it doubles as accent-text here. */
+    --accent: #ff7a45;
+    --accent-text: #ff7a45;
+    --accent-contrast: #16130f;
 
     color-scheme: dark;
   }
 }
 
-/* Explicit user choice always wins. */
 :root[data-theme='dark'] {
-  --bg: #0e0e11;
-  --fg: #ededf0;
-  --muted: #9a9aa5;
-  --accent: #7aa2f7;
-  --border: #26262d;
+  --paper: #0e0f12;
+  --surface: #17181d;
+  --ink: #ececef;
+  --muted: #9b9ba6;
+  --border: #26262e;
+  --border-strong: #3a3a45;
+  --accent: #ff7a45;
+  --accent-text: #ff7a45;
+  --accent-contrast: #16130f;
 
   color-scheme: dark;
 }
 
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+html {
+  scroll-behavior: smooth;
+  /* Anchored sections must clear the sticky nav. */
+  scroll-padding-top: 5rem;
+}
+
 body {
-  background-color: var(--bg);
-  color: var(--fg);
+  background-color: var(--paper);
+  color: var(--ink);
   font-family: var(--font-sans);
   font-size: var(--text-step-0);
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Deliberately NO overflow-x: hidden — it masks layout bugs rather than
+     fixing them, and would make scripts/check-responsive.mjs useless. */
 }
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   text-wrap: balance;
-  line-height: 1.15;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
 }
 
 p {
   text-wrap: pretty;
-  max-inline-size: var(--measure);
+}
+
+/* The single most common cause of mobile horizontal scroll. */
+a,
+code,
+.break-anywhere {
+  overflow-wrap: anywhere;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: var(--accent-contrast);
 }
 
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+
+   Reveals live INSIDE @supports and set no hidden state outside it. If the
+   browser lacks scroll-driven animations, content is simply visible — it can
+   never end up stuck at opacity 0.
+   --------------------------------------------------------------------------- */
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes progress-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.scroll-progress {
+  display: none;
+}
+
+/*
+  The timeline declarations sit on a deliberately DIFFERENT selector from the
+  animation ones. Lightning CSS (Tailwind 4's minifier) merges rules with an
+  identical selector and folds animation-timeline into the `animation`
+  shorthand — producing `animation: linear both reveal-in view()`, which Chrome
+  rejects outright, leaving animation-name: none. Splitting the selector makes
+  the merge impossible. [class~='x'] matches exactly what .x does.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation-name: reveal-in;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+    }
+
+    [class~='reveal'] {
+      animation-duration: auto;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .scroll-progress {
+      display: block;
+      transform-origin: 0 50%;
+      animation-name: progress-grow;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+    }
+
+    [class~='scroll-progress'] {
+      animation-duration: auto;
+      animation-timeline: scroll(root block);
+    }
+  }
+
+  .hero-in {
+    animation: hero-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -99,5 +244,144 @@ p {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Hero shell
+
+   A full-height centred hero overflows on a landscape phone (844×390), so
+   below 500px of height it reverts to intrinsic height with tighter padding.
+   --------------------------------------------------------------------------- */
+.hero-shell {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  padding-block: clamp(5rem, 12vh, 8rem) clamp(3rem, 8vh, 5rem);
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-shell {
+    min-height: auto;
+    padding-block: 5rem 3rem;
+  }
+}
+
+/* Sticky section labels are a desktop affordance — on short viewports they
+   eat vertical space that the content needs. */
+@media (min-width: 1024px) and (min-height: 600px) {
+  .sticky-label {
+    position: sticky;
+    top: 6rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Case-study prose (MDX output)
+   --------------------------------------------------------------------------- */
+.prose-case {
+  max-width: var(--measure);
+  color: var(--muted);
+  font-size: var(--text-step-0);
+}
+
+.prose-case > * + * {
+  margin-top: 1.25em;
+}
+
+.prose-case h2 {
+  margin-top: 2.5em;
+  color: var(--ink);
+  font-size: var(--text-step-2);
+  font-weight: 600;
+}
+
+.prose-case h3 {
+  margin-top: 2em;
+  color: var(--ink);
+  font-size: var(--text-step-1);
+  font-weight: 600;
+}
+
+.prose-case strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.prose-case ul {
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.prose-case li::marker {
+  color: var(--border-strong);
+}
+
+.prose-case li + li {
+  margin-top: 0.5em;
+}
+
+.prose-case a {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-case code {
+  border-radius: 0.25rem;
+  background-color: var(--surface);
+  padding: 0.15em 0.4em;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+/* ---------------------------------------------------------------------------
+   Print — drives the build-time PDF as well as Ctrl-P
+   --------------------------------------------------------------------------- */
+@media print {
+  :root {
+    --paper: #ffffff;
+    --surface: #ffffff;
+    --ink: #000000;
+    --muted: #333333;
+    --border: #cccccc;
+    --border-strong: #999999;
+    --accent: #c2410c;
+    --accent-text: #c2410c;
+  }
+
+  .screen-only {
+    display: none !important;
+  }
+
+  body {
+    font-size: 10.5pt;
+    line-height: 1.45;
+  }
+
+  .resume-sheet {
+    max-width: none;
+    padding: 0;
+  }
+
+  h1 {
+    font-size: 20pt;
+  }
+
+  h2 {
+    font-size: 11pt;
+  }
+
+  h3 {
+    font-size: 10.5pt;
+  }
+
+  /* Never split a role across pages. */
+  .resume-entry {
+    break-inside: avoid;
+  }
+
+  a {
+    text-decoration: none;
   }
 }

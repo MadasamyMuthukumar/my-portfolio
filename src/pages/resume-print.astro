@@ -1,0 +1,20 @@
+---
+/**
+ * PDF source only. Noindexed and excluded from the sitemap.
+ *
+ * Exists so the phone number can appear in the downloadable PDF without ever
+ * being present in the markup of an indexed page.
+ */
+import Base from '../layouts/Base.astro';
+import Container from '../components/primitives/Container.astro';
+import ResumeDocument from '../components/ResumeDocument.astro';
+import { profile } from '../data/resume';
+---
+
+<Base title={`Résumé — ${profile.name}`} noindex>
+  <main id="content" class="py-10">
+    <Container class="resume-sheet max-w-[46rem]">
+      <ResumeDocument includePhone />
+    </Container>
+  </main>
+</Base>

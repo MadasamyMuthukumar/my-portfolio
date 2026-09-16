@@ -1,0 +1,67 @@
+---
+/**
+ * Render targets for social share images. Not pages for humans: noindexed,
+ * excluded from the sitemap, and deleted from dist/ after the PNGs are
+ * captured by scripts/generate-og.mjs.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { profile } from '../../data/resume';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', ({ data }) => !data.draft);
+  return [
+    {
+      params: { slug: 'default' },
+      props: {
+        eyebrow: `${profile.role} · ${profile.location}`,
+        title: profile.shortName,
+        body: profile.tagline,
+      },
+    },
+    ...projects.map((p) => ({
+      params: { slug: p.id },
+      props: {
+        eyebrow: p.data.period,
+        title: p.data.title,
+        body: p.data.summary,
+      },
+    })),
+  ];
+}
+
+const { eyebrow, title, body } = Astro.props;
+---
+
+<Base title={`OG — ${title}`} noindex>
+  <div
+    class="og-card flex flex-col justify-between bg-paper"
+    style="width: 1200px; height: 630px; padding: 72px;"
+  >
+    <p
+      class="font-mono uppercase"
+      style="font-size: 22px; letter-spacing: 0.18em; color: var(--muted);"
+    >
+      {eyebrow}
+    </p>
+
+    <div>
+      <h1
+        class="font-display italic"
+        style="font-size: 104px; line-height: 1; letter-spacing: -0.01em;"
+      >
+        {title}
+      </h1>
+      <p style="margin-top: 28px; font-size: 32px; line-height: 1.4; color: var(--muted); max-width: 22ch;">
+        {body}
+      </p>
+    </div>
+
+    <div class="flex items-center" style="gap: 20px;">
+      <span style="display: block; width: 64px; height: 8px; border-radius: 4px; background: var(--accent);"></span>
+      <span class="font-mono" style="font-size: 22px; color: var(--muted);">
+        {profile.name}
+      </span>
+    </div>
+  </div>
+</Base>

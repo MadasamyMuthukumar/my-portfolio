@@ -1,0 +1,23 @@
+---
+interface Props {
+  class?: string;
+  /** Wider variant for full-bleed-ish grids. */
+  wide?: boolean;
+}
+const { class: className = '', wide = false } = Astro.props;
+---
+
+{/*
+  Gutters use max(var(--spacing-gutter), env(safe-area-inset-*)) so content
+  clears the notch on landscape phones without adding padding elsewhere.
+*/}
+<div
+  class:list={[
+    'mx-auto w-full',
+    wide ? 'max-w-[84rem]' : 'max-w-[var(--content-max)]',
+    className,
+  ]}
+  style="padding-inline: max(var(--spacing-gutter), env(safe-area-inset-left), env(safe-area-inset-right));"
+>
+  <slot />
+</div>

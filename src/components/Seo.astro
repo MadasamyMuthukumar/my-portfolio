@@ -1,41 +1,35 @@
 ---
-import { SITE, SAME_AS } from '../site.config';
+import { SITE, buildPersonSchema } from '../site.config';
 
 interface Props {
   title: string;
   description?: string;
-  /** Absolute or root-relative path to the social share image. */
   image?: string;
   type?: 'website' | 'article';
-  /** Emit the JSON-LD Person schema. Should be true on exactly one page. */
+  /** Emit the JSON-LD Person schema. True on the homepage only. */
   includePersonSchema?: boolean;
-  /** Keep the page out of search results. */
+  /** Extra JSON-LD, e.g. CreativeWork on a case study. */
+  schema?: Record<string, unknown>;
   noindex?: boolean;
 }
 
 const {
   title,
   description = SITE.defaultDescription,
-  image = '/og-default.png',
+  image = '/og/default.png',
   type = 'website',
   includePersonSchema = false,
+  schema,
   noindex = false,
 } = Astro.props;
 
-// Astro.site comes from `site` in astro.config.mjs.
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const imageUrl = new URL(image, Astro.site);
 
-const personSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: SITE.name,
-  url: Astro.site?.href,
-  jobTitle: SITE.jobTitle,
-  description: SITE.defaultDescription,
-  sameAs: SAME_AS,
-  knowsAbout: SITE.knowsAbout,
-};
+const graphs = [
+  includePersonSchema && Astro.site ? buildPersonSchema(Astro.site.href) : null,
+  schema ?? null,
+].filter(Boolean);
 ---
 
 <title>{title}</title>
@@ -56,10 +50,10 @@ const personSchema = {
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={imageUrl.href} />
 
-{includePersonSchema && (
+{graphs.map((graph) => (
   <script
     type="application/ld+json"
     is:inline
-    set:html={JSON.stringify(personSchema)}
+    set:html={JSON.stringify(graph)}
   ></script>
-)}
+))}

@@ -1,0 +1,46 @@
+---
+import Container from './primitives/Container.astro';
+import { profile } from '../data/resume';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-border py-10">
+  <Container>
+    <div class="flex flex-col items-start justify-between gap-4 font-mono text-step-s text-muted sm:flex-row sm:items-center">
+      <p>
+        © {year} {profile.name}
+      </p>
+      <ul class="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <li>
+          <a
+            href={profile.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="transition-colors hover:text-ink"
+          >
+            GitHub
+          </a>
+        </li>
+        <li>
+          <a
+            href={profile.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="transition-colors hover:text-ink"
+          >
+            LinkedIn
+          </a>
+        </li>
+        <li>
+          <a
+            href={`mailto:${profile.email}`}
+            class="transition-colors hover:text-ink"
+          >
+            Email
+          </a>
+        </li>
+      </ul>
+    </div>
+  </Container>
+</footer>

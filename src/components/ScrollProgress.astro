@@ -1,0 +1,12 @@
+---
+/**
+ * Scroll position indicator. Driven entirely by CSS `animation-timeline:
+ * scroll()` — no JS, no scroll listener. Hidden outside @supports, so
+ * unsupporting browsers get nothing rather than a stuck full-width bar.
+ */
+---
+
+<div
+  class="scroll-progress fixed inset-x-0 top-0 z-50 h-0.5 bg-accent"
+  aria-hidden="true"
+></div>

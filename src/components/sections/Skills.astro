@@ -1,0 +1,22 @@
+---
+import Section from '../primitives/Section.astro';
+import Chip from '../primitives/Chip.astro';
+import { skills } from '../../data/resume';
+---
+
+<Section id="skills" index="04" label="Skills" title="What I work with" tinted>
+  <div class="space-y-8">
+    {skills.map((group) => (
+      <div class="reveal grid gap-3 border-t border-border pt-6 sm:grid-cols-[11rem_1fr] sm:gap-6">
+        <h3 class="font-mono text-step-s tracking-[0.14em] text-muted uppercase">
+          {group.label}
+        </h3>
+        <ul class="flex flex-wrap gap-2">
+          {group.items.map((item) => (
+            <Chip>{item}</Chip>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</Section>

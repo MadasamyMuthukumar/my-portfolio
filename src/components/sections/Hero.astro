@@ -1,0 +1,98 @@
+---
+import Container from '../primitives/Container.astro';
+import Button from '../primitives/Button.astro';
+import PhotoCard from '../PhotoCard.astro';
+import { profile } from '../../data/resume';
+---
+
+<section class="hero-shell" aria-labelledby="hero-heading">
+  <Container>
+    {/*
+      Stacks below lg, splits 58/42 at lg+. Deliberately NOT split at 768 —
+      a side-by-side hero on a portrait tablet is cramped.
+    */}
+    <div class="grid items-center gap-10 lg:grid-cols-[58fr_42fr] lg:gap-16">
+      <div class="order-2 lg:order-1">
+        <p
+          class="hero-in mb-5 font-mono text-step-s tracking-[0.18em] text-muted uppercase"
+          style="animation-delay: 60ms"
+        >
+          <span class="whitespace-nowrap">{profile.role}</span>{' '}
+          <span class="whitespace-nowrap">
+            <span class="mr-1 opacity-40" aria-hidden="true">
+              ·
+            </span>
+            {profile.location}
+          </span>
+        </p>
+
+        <h1
+          id="hero-heading"
+          class="hero-in text-step-5 font-semibold"
+          style="animation-delay: 120ms"
+        >
+          Hi, I'm{' '}
+          <span class="font-display font-normal italic tracking-normal">
+            {profile.shortName}
+          </span>
+          .
+        </h1>
+
+        <p
+          class="hero-in mt-6 max-w-[38ch] text-step-1 text-muted"
+          style="animation-delay: 200ms"
+        >
+          {profile.tagline}
+        </p>
+
+        <div
+          class="hero-in mt-9 flex flex-wrap items-center gap-3"
+          style="animation-delay: 280ms"
+        >
+          <Button href="#work">View my work</Button>
+          <Button href="/resume" variant="ghost">
+            Résumé
+          </Button>
+        </div>
+
+        <ul
+          class="hero-in mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-step-s text-muted"
+          style="animation-delay: 340ms"
+        >
+          <li>
+            <a
+              href={profile.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline decoration-border underline-offset-4 transition-colors hover:text-accent-text hover:decoration-accent"
+            >
+              GitHub
+            </a>
+          </li>
+          <li>
+            <a
+              href={profile.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline decoration-border underline-offset-4 transition-colors hover:text-accent-text hover:decoration-accent"
+            >
+              LinkedIn
+            </a>
+          </li>
+          <li>
+            <a
+              href={`mailto:${profile.email}`}
+              class="underline decoration-border underline-offset-4 transition-colors hover:text-accent-text hover:decoration-accent"
+            >
+              Email
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="hero-in order-1 lg:order-2" style="animation-delay: 160ms">
+        <PhotoCard alt={`Portrait of ${profile.name}`} />
+      </div>
+    </div>
+  </Container>
+</section>

@@ -1,0 +1,31 @@
+---
+import Section from '../primitives/Section.astro';
+import { profile, education } from '../../data/resume';
+
+const facts = [
+  { label: 'Based in', value: profile.location },
+  { label: 'Focus', value: 'AI product interfaces' },
+  { label: 'Education', value: `${education.institution}, ${education.end}` },
+];
+---
+
+<Section id="about" index="01" label="About" title="A little context">
+  <div class="grid gap-10 lg:grid-cols-[1fr_auto] lg:gap-16">
+    <div class="reveal space-y-5 text-step-1 text-muted">
+      {profile.about.map((para) => (
+        <p class="max-w-[var(--measure)]">{para}</p>
+      ))}
+    </div>
+
+    <dl class="reveal grid gap-5 border-t border-border pt-6 sm:grid-cols-3 lg:w-64 lg:grid-cols-1 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-8">
+      {facts.map((fact) => (
+        <div>
+          <dt class="font-mono text-step-s tracking-[0.14em] text-muted uppercase">
+            {fact.label}
+          </dt>
+          <dd class="mt-1 text-step-0">{fact.value}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</Section>

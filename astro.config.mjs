@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
@@ -12,11 +11,16 @@ export default defineConfig({
   // Canonical URLs and the sitemap are both derived from this value.
   site: 'https://example.com',
 
+  // No React integration: nothing currently mounts an island, and registering
+  // it emitted a 220 KB client runtime into dist/ that no page referenced.
+  // Re-add with `pnpm astro add react` the moment a feature needs component state.
   integrations: [
-    react(),
     mdx(),
-    // /stack-check is an internal build probe, not a real page.
-    sitemap({ filter: (page) => !page.includes('/stack-check') }),
+    // /resume-print is the PDF source, not a page for humans.
+    sitemap({
+      filter: (page) =>
+        !page.includes('/resume-print') && !page.includes('/og-preview'),
+    }),
   ],
 
   // Tailwind v4 is wired as a Vite plugin. There is no tailwind.config.js —

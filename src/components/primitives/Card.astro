@@ -1,0 +1,24 @@
+---
+interface Props {
+  href?: string;
+  class?: string;
+}
+const { href, class: className = '' } = Astro.props;
+const Tag = href ? 'a' : 'div';
+---
+
+{/*
+  `@container` scopes child layout to the CARD's width, not the viewport — so
+  the same card works in a 1-, 2- or 3-column grid with no extra rules.
+*/}
+<Tag
+  {...(href ? { href } : {})}
+  class:list={[
+    '@container group relative block rounded-xl border border-border bg-paper p-5 transition-[transform,border-color,box-shadow] duration-200 ease-out sm:p-6',
+    href &&
+      'hover:border-border-strong motion-safe:hover:-translate-y-0.5 hover:shadow-[0_8px_30px_-12px_rgb(0_0_0/0.15)]',
+    className,
+  ]}
+>
+  <slot />
+</Tag>

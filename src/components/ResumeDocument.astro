@@ -1,0 +1,100 @@
+---
+import { profile, experience, education, skills } from '../data/resume';
+
+interface Props {
+  /**
+   * Whether to emit the phone number INTO THE MARKUP.
+   *
+   * CSS `display: none` is not privacy — scrapers read HTML, not stylesheets.
+   * So the public /resume page never renders it at all; only the noindexed
+   * /resume-print route (the PDF source) sets this true.
+   */
+  includePhone?: boolean;
+}
+
+const { includePhone = false } = Astro.props;
+---
+
+<header class="border-b border-border pb-6">
+  <h1 class="text-step-4 font-semibold">{profile.name}</h1>
+  <p class="mt-2 text-step-1 text-muted">{profile.role}</p>
+
+  <ul class="mt-4 flex flex-wrap gap-x-5 gap-y-1 font-mono text-step-s text-muted">
+    <li>{profile.location}</li>
+    {includePhone && <li>{profile.phone}</li>}
+    <li class="break-anywhere">
+      <a href={`mailto:${profile.email}`}>{profile.email}</a>
+    </li>
+    <li class="break-anywhere">
+      <a href={profile.linkedin}>linkedin.com/in/madasamy-muthukumar</a>
+    </li>
+    <li class="break-anywhere">
+      <a href={profile.github}>github.com/MadasamyMuthukumar</a>
+    </li>
+  </ul>
+</header>
+
+<section class="mt-8">
+  <h2 class="font-mono text-step-s tracking-[0.16em] text-muted uppercase">
+    Summary
+  </h2>
+  <p class="mt-3 text-step-0 text-muted">{profile.summary}</p>
+</section>
+
+<section class="mt-8">
+  <h2 class="font-mono text-step-s tracking-[0.16em] text-muted uppercase">
+    Experience
+  </h2>
+  <ol class="mt-4 space-y-7">
+    {experience.map((role) => (
+      <li class="resume-entry">
+        <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+          <h3 class="text-step-1 font-semibold">{role.company}</h3>
+          <p class="font-mono text-step-s text-muted">
+            {role.start} — {role.end}
+          </p>
+        </div>
+        <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+          <p class="text-step-0 text-muted italic">{role.title}</p>
+          <p class="font-mono text-step-s text-muted">{role.location}</p>
+        </div>
+        <ul class="mt-3 list-disc space-y-1.5 pl-5 text-step-0 text-muted marker:text-border-strong">
+          {[...role.highlights, ...(role.pdfOnly ?? [])].map((point) => (
+            <li>{point}</li>
+          ))}
+        </ul>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<section class="mt-8">
+  <h2 class="font-mono text-step-s tracking-[0.16em] text-muted uppercase">
+    Skills
+  </h2>
+  <dl class="mt-4 space-y-2">
+    {skills.map((group) => (
+      <div class="flex flex-wrap gap-x-2 text-step-0">
+        <dt class="font-semibold">{group.label}:</dt>
+        <dd class="text-muted">{group.items.join(', ')}</dd>
+      </div>
+    ))}
+  </dl>
+</section>
+
+<section class="mt-8">
+  <h2 class="font-mono text-step-s tracking-[0.16em] text-muted uppercase">
+    Education
+  </h2>
+  <div class="resume-entry mt-4 flex flex-wrap items-baseline justify-between gap-x-4">
+    <div>
+      <h3 class="text-step-1 font-semibold">{education.degree}</h3>
+      <p class="mt-1 text-step-0 text-muted">
+        {education.institution}, {education.location}
+      </p>
+    </div>
+    <p class="font-mono text-step-s text-muted">
+      {education.start} — {education.end} · {education.result}
+    </p>
+  </div>
+</section>

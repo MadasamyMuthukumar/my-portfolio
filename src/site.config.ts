@@ -1,21 +1,42 @@
-/**
- * Identity and social links, used to build the JSON-LD Person schema and
- * page metadata. PLACEHOLDER VALUES — replace before going live.
- *
- * The canonical site URL is NOT duplicated here; it lives in `site` in
- * astro.config.mjs and is read via `Astro.site`.
- */
+import { profile, education, experience, skills } from './data/resume';
+
+/** Identity metadata used for JSON-LD and page meta. */
 export const SITE = {
-  name: 'Maddy',
-  jobTitle: 'Frontend Developer',
-  defaultDescription:
-    'Frontend developer building fast, accessible web interfaces.',
+  name: profile.name,
+  shortName: profile.shortName,
+  jobTitle: profile.role,
+  defaultDescription: profile.tagline,
   locale: 'en',
-  socials: {
-    github: 'https://github.com/USERNAME',
-    linkedin: 'https://www.linkedin.com/in/USERNAME',
-  },
-  knowsAbout: ['Frontend Development', 'TypeScript', 'React', 'Astro', 'CSS'],
 } as const;
 
-export const SAME_AS = Object.values(SITE.socials);
+const currentRole = experience.find((role) => role.current) ?? experience[0];
+
+/** schema.org Person — how Google associates this site with a named human. */
+export function buildPersonSchema(siteUrl: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: profile.name,
+    alternateName: profile.shortName,
+    url: siteUrl,
+    jobTitle: profile.role,
+    email: `mailto:${profile.email}`,
+    description: profile.summary,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Coimbatore',
+      addressRegion: 'Tamil Nadu',
+      addressCountry: 'IN',
+    },
+    worksFor: {
+      '@type': 'Organization',
+      name: currentRole.company,
+    },
+    alumniOf: {
+      '@type': 'CollegeOrUniversity',
+      name: education.institution,
+    },
+    knowsAbout: skills.flatMap((group) => group.items),
+    sameAs: [profile.github, profile.linkedin],
+  };
+}

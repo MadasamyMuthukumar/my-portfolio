@@ -1,21 +1,37 @@
 ---
 import Base from '../layouts/Base.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import Nav from '../components/Nav.astro';
+import ScrollProgress from '../components/ScrollProgress.astro';
+import Footer from '../components/Footer.astro';
+
+import Hero from '../components/sections/Hero.astro';
+import About from '../components/sections/About.astro';
+import Experience from '../components/sections/Experience.astro';
+import Projects from '../components/sections/Projects.astro';
+import Skills from '../components/sections/Skills.astro';
+import Education from '../components/sections/Education.astro';
+import Contact from '../components/sections/Contact.astro';
+
+import { profile } from '../data/resume';
 ---
 
 <Base
-  title="Hello World"
-  description="Portfolio — under construction."
+  title={`${profile.name} — ${profile.role}`}
+  description={profile.tagline}
   includePersonSchema
 >
-  <div class="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center gap-6 px-4 py-16">
-    <h1 class="text-step-4 font-semibold tracking-tight">Hello World</h1>
-    <p class="text-muted">
-      Astro 7 · React islands · Tailwind 4 · MDX content collections. The stack
-      is live; the portfolio sections come next.
-    </p>
-    <div>
-      <ThemeToggle />
-    </div>
-  </div>
+  <ScrollProgress />
+  <Nav />
+
+  <main id="content">
+    <Hero />
+    <About />
+    <Experience />
+    <Projects />
+    <Skills />
+    <Education />
+    <Contact />
+  </main>
+
+  <Footer />
 </Base>

@@ -1,0 +1,49 @@
+---
+import Container from './Container.astro';
+
+interface Props {
+  id: string;
+  /** Two-digit index, e.g. "01". */
+  index?: string;
+  label?: string;
+  title?: string;
+  /** Tinted background — used sparingly, at most once per page. */
+  tinted?: boolean;
+  class?: string;
+}
+
+const {
+  id,
+  index,
+  label,
+  title,
+  tinted = false,
+  class: className = '',
+} = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={[
+    'scroll-mt-20 border-t border-border',
+    tinted && 'bg-surface',
+    className,
+  ]}
+  style="padding-block: var(--spacing-section);"
+>
+  <Container>
+    {(index || label || title) && (
+      <header class="reveal mb-10 sm:mb-14">
+        {(index || label) && (
+          <p class="mb-4 font-mono text-step-s tracking-[0.18em] text-muted uppercase">
+            {index && <span class="text-accent-text">{index}</span>}
+            {index && label && <span class="mx-2 opacity-40">—</span>}
+            {label}
+          </p>
+        )}
+        {title && <h2 class="text-step-3 font-semibold">{title}</h2>}
+      </header>
+    )}
+    <slot />
+  </Container>
+</section>
