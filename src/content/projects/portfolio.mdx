@@ -1,6 +1,6 @@
 ---
 title: This portfolio
-summary: A statically generated portfolio built to hold a strict performance budget — zero JavaScript on the homepage, and responsiveness enforced by an automated browser test rather than asserted.
+summary: A statically generated portfolio built around a strict performance budget — pre-rendered HTML, zero JavaScript on the homepage, and a fluid layout designed to fit any screen from a small phone to a desktop.
 role: Personal project
 period: '2026'
 date: 2026-09-16
@@ -23,34 +23,69 @@ stats:
 The site you're reading. Built with Astro 7 and Tailwind 4, output as static
 HTML with no backend.
 
-## The constraint
+## Built to load instantly
 
-The homepage ships **zero JavaScript requests**. Not "a small bundle" — none.
-Every interactive piece that would normally justify a framework was examined
-against what it actually costs.
+Every page is pre-rendered at build time, so a visitor receives finished HTML
+rather than a blank shell that has to boot a framework before anything appears.
+The homepage ships **zero JavaScript requests** — the few interactive pieces,
+like the theme toggle and the mobile drawer, are small inline scripts rather
+than framework components.
 
-The clearest example is the theme toggle. Mounting it as a React island worked
-fine, and shipped **216 KB of React runtime for a single button**. It is now a
-~600 byte inline script, and React is reserved for places that genuinely need
-component state.
+The rest of the budget went the same way:
 
-## Responsiveness as a test, not a claim
+- **Self-hosted variable fonts**, subset to the characters actually used and
+  preloaded for the text above the fold, so there's no render-blocking request
+  to a third-party CDN and no flash of unstyled text.
+- **Responsive images** generated at build in AVIF and WebP, each with its
+  dimensions reserved in the markup — which is what keeps **cumulative layout
+  shift at zero** as they load.
+- **First contentful paint in ~140 ms** locally, with the whole homepage
+  transferring around 145 KB including fonts.
 
-Rather than eyeballing breakpoints, the build drives headless Chrome over a
-matrix of viewports — 320 through 2560, plus landscape phones and 200% browser
-zoom — and asserts that no layout produces horizontal overflow and that every
-touch target clears 44px.
+## Found on search, not just shared
 
-The layout is built to make that easy to pass: fluid `clamp()` type and spacing
-so nothing resizes at a breakpoint, container queries so cards respond to their
-own slot rather than the viewport, and intrinsic grids that reflow on their own.
+Because pages are pre-rendered, crawlers read real content instead of waiting
+on client-side rendering. On top of that:
+
+- **Structured data** — a schema.org `Person` graph ties the site to a named
+  human with role, employer, education and profiles, and each case study
+  carries its own `CreativeWork` entry.
+- **Canonical URLs, an auto-generated sitemap and per-page metadata**, so
+  nothing is indexed twice and every page describes itself correctly.
+- **Social share images generated at build**, one per page, so a link posted
+  to LinkedIn renders a proper card rather than a bare URL.
+- **Semantic, accessible markup** — landmarks, a skip link, real heading order
+  and visible focus states. The things that help screen readers are largely the
+  same things that help crawlers.
+
+## Designed to fit any screen
+
+The layout is fluid rather than a set of fixed breakpoints. Type and spacing
+scale continuously with `clamp()`, so nothing snaps at an arbitrary width and
+the design holds together at sizes no one thought to check.
+
+- **Sized against both axes.** Width alone says nothing about how much vertical
+  room a screen has — a short laptop and a tall monitor can be equally wide. The
+  hero measures both, so it fills the space below the nav exactly and its
+  content never spills past the fold.
+- **Container queries** let cards respond to the width of the slot they sit in
+  rather than the viewport, so the same card works in one, two or three columns
+  with no extra rules.
+- **Intrinsic grids** reflow on their own, and on phones the project cards
+  become a swipeable carousel that works through native scrolling.
+- **Touch targets clear 44px**, layouts survive 200% browser zoom, and the
+  design accounts for landscape phones and notched safe areas.
 
 ## Details worth the effort
 
 - **Scroll-driven animations in pure CSS** (`animation-timeline: view()`),
-  guarded by `@supports` so content is never stuck invisible where unsupported.
-- **Contrast-verified palette** — every colour pair computed against WCAG
-  thresholds, which forced a split accent token because the vivid orange fails
-  body-text contrast.
-- **Content collections** with Zod schemas, so malformed frontmatter fails the
-  build instead of rendering an empty page.
+  guarded by `@supports` so content is never stuck invisible where unsupported,
+  and disabled entirely under `prefers-reduced-motion`.
+- **A contrast-verified palette** — every colour pair computed against WCAG
+  thresholds rather than eyeballed, which forced a split accent token once the
+  vivid orange turned out to fail body-text contrast.
+- **A considered dark mode**, derived from the same tokens so both themes stay
+  in step, with warm tones re-mixed because a glow reads far hotter against a
+  dark ground than a light one.
+- **Content collections** with typed schemas, so malformed frontmatter fails
+  the build instead of rendering an empty page.

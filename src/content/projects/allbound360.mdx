@@ -52,9 +52,9 @@ follow-ups, and the actual LinkedIn execution.
 
 Almost none of this can happen in a request cycle. Campaign steps fire on
 schedules, LinkedIn actions have to be paced to stay within platform limits,
-and enrichment depends on third-party APIs that fail intermittently. All of it
-runs through **BullMQ queues and worker jobs**, with retries and scheduling, so
-a slow or failing external call delays one step rather than breaking a
+and enrichment runs against external sources that fail intermittently. All of
+it runs through **BullMQ queues and worker jobs**, with retries and scheduling,
+so a slow or failing step is delayed and retried rather than breaking a
 campaign.
 
 ## AI-SDR — agent-driven qualification
@@ -75,6 +75,6 @@ every action reversible and auditable.
 - **Multi-tenancy with RBAC** — workspaces and team management shaped for
   agencies, so access is scoped across shared workspaces and members.
 - **Integrations** — Auth0 for authentication, Stripe for payments and
-  subscriptions, plus LinkedIn APIs, Apify and RapidAPI for data and execution.
+  subscriptions, and the LinkedIn APIs for execution.
 - **Async everywhere** — queues, Pub/Sub and worker jobs for anything
   long-running or scheduled.
