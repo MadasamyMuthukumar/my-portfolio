@@ -16,16 +16,21 @@ const { src, alt = '', initials = 'MM' } = Astro.props;
 ---
 
 {/*
-  Sized against BOTH axes. The width clamp alone knows nothing about vertical
-  room, so on a short screen the circle stayed large and pushed the CTAs below
-  the fold. min(…, 30vh) makes one rule do both jobs: it shrinks the photo when
-  height is scarce and lets it grow into spare vertical space on tablets.
+  Sized against BOTH axes, so it takes whatever space each viewport actually
+  has instead of a single width-driven guess.
 
-  The card's 40vh cap is looser than the circle's because in a side-by-side
-  grid the photo only adds height once it exceeds the text column — capping it
-  tighter just made it look undersized without buying any vertical room.
+  Circle (phones): the width term is generous — 46vw fills a tall phone — and
+  the 22vh cap is what reins it in on short ones. On a 360x640 the cap binds
+  and keeps it at ~141px so the CTAs stay above the fold; on a 440x956 the
+  width term wins and it reaches ~202px.
+
+  Card (md+): capped by 52vh rather than the text column's height, because in
+  a side-by-side grid with items-center the photo only pushes the hero taller
+  once it exceeds the text column — and there is slack past that point. Paired
+  with w-full it fills the 42fr column whenever the column is the tighter of
+  the two, which is what happens on tablets.
 */}
-<div class="relative mx-auto w-[min(clamp(7.5rem,38vw,18rem),30vh)] md:mx-0 md:w-full md:max-w-[min(21rem,40vh)]">
+<div class="relative mx-auto w-[min(clamp(7.5rem,46vw,18rem),22vh)] md:mx-0 md:w-full md:max-w-[min(26rem,52vh)]">
   {/* The one loud use of accent on the page. Card layouts only — at phone
       sizes the photo is a circle and the offset block would read as a smudge. */}
   <div
@@ -39,7 +44,7 @@ const { src, alt = '', initials = 'MM' } = Astro.props;
         src={src}
         alt={alt}
         widths={[240, 360, 480, 720]}
-        sizes="(min-width: 768px) 21rem, 38vw"
+        sizes="(min-width: 768px) 26rem, 46vw"
         class="h-full w-full object-cover"
         loading="eager"
         fetchpriority="high"
