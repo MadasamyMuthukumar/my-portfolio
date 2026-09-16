@@ -1,29 +1,62 @@
 ---
 import Section from '../primitives/Section.astro';
 import Button from '../primitives/Button.astro';
+import ContactForm from '../ContactForm.astro';
 import { profile } from '../../data/resume';
+
+/*
+  A public alias for the inbox, not a secret — see .env.example.
+
+  In dev the card renders with or without a key, so it can be seen and styled
+  before signing up; submitting without one just hits the error path. A
+  production build omits it entirely instead, because a form that silently
+  cannot deliver is worse for a visitor than no form at all.
+*/
+const accessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY ?? '';
+const showForm = Boolean(accessKey) || import.meta.env.DEV;
+
+if (!accessKey) {
+  console.warn(
+    '[contact] PUBLIC_WEB3FORMS_ACCESS_KEY is unset — the form will not deliver. See .env.example.',
+  );
+}
 ---
 
 <Section id="contact" index="06" label="Contact">
-  <div class="reveal max-w-[34ch]">
-    <h2 class="text-step-4 font-semibold">
-      Let's build something{' '}
-      <span class="font-display font-normal italic tracking-normal">good</span>.
-    </h2>
-    <p class="mt-5 text-step-1 text-muted">
-      I'm open to full-stack roles, especially on products where AI does real
-      work.
-    </p>
+  {/* Two columns only when there is a card to put in the second one. */}
+  <div
+    class:list={[
+      'grid gap-10',
+      showForm && 'lg:grid-cols-[1fr_26rem] lg:gap-16',
+    ]}
+  >
+    <div class="reveal min-w-0">
+      <h2 class="max-w-[24ch] text-step-4 font-semibold">
+        Let's build something{' '}
+        <span class="font-display font-normal italic tracking-normal">
+          good
+        </span>
+        .
+      </h2>
+      <p class="mt-5 max-w-[34ch] text-step-1 text-muted">
+        I'm open to full-stack roles, especially on products where AI does real
+        work.
+      </p>
 
-    <div class="mt-9 flex flex-wrap items-center gap-3">
-      <Button href={`mailto:${profile.email}`}>Email me</Button>
-      <Button href={profile.linkedin} variant="ghost" external>
-        LinkedIn
-      </Button>
+      {/* Kept alongside the form: some people would rather use their own mail
+          client, and it is the fallback the form's error message points to. */}
+      <div class="mt-9 flex flex-wrap items-center gap-3">
+        <Button href={`mailto:${profile.email}`}>Email me</Button>
+        <Button href={profile.linkedin} variant="ghost" external>
+          LinkedIn
+        </Button>
+      </div>
+
+      <p class="mt-6 font-mono text-step-s break-anywhere text-muted">
+        {profile.email}
+      </p>
     </div>
 
-    <p class="mt-6 font-mono text-step-s break-anywhere text-muted">
-      {profile.email}
-    </p>
+    {showForm && <ContactForm accessKey={accessKey} class="reveal min-w-0" />}
   </div>
 </Section>

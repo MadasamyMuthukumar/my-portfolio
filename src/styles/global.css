@@ -31,6 +31,7 @@
   --color-accent: var(--accent);
   --color-accent-text: var(--accent-text);
   --color-accent-contrast: var(--accent-contrast);
+  --color-danger: var(--danger);
 }
 
 @theme {
@@ -68,6 +69,10 @@
      this darker pairing instead (5.00:1, AA). */
   --accent-text: #c2410c;
   --accent-contrast: #ffffff;
+  /* Form validation errors. Deliberately NOT color-mixed from the accent —
+     an error has to read as a different hue, not a shade of orange.
+     5.93:1 on --surface, AA. */
+  --danger: #b42318;
 
   /* Warm tones derived from the accent, so dark mode re-tones automatically
      rather than needing a hand-maintained parallel palette.
@@ -93,6 +98,8 @@
     --accent: #ff7a45;
     --accent-text: #ff7a45;
     --accent-contrast: #16130f;
+    /* 7.82:1 on --surface, AAA. */
+    --danger: #ff8b82;
 
     /* Measured on the resulting #1a1516: ink 15.32:1 AAA, muted 6.56:1 AA. */
     --surface-warm: color-mix(in oklab, var(--accent) 6%, var(--paper));
@@ -114,6 +121,7 @@
   --accent: #ff7a45;
   --accent-text: #ff7a45;
   --accent-contrast: #16130f;
+  --danger: #ff8b82;
 
   /* Measured on the resulting #1a1516: ink 15.32:1 AAA, muted 6.56:1 AA. */
   --surface-warm: color-mix(in oklab, var(--accent) 6%, var(--paper));
@@ -428,6 +436,7 @@ code,
     --border-strong: #999999;
     --accent: #c2410c;
     --accent-text: #c2410c;
+    --danger: #b42318;
   }
 
   .screen-only {

@@ -1,0 +1,225 @@
+---
+/**
+ * Contact form card. Posts straight to Web3Forms, which forwards to the inbox
+ * the access key was registered with — so the destination address never
+ * appears in the markup.
+ *
+ * No-JS is the baseline: this is an ordinary HTML form and submits fine with
+ * scripting off (landing on Web3Forms' own success page). The inline script at
+ * the bottom is pure enhancement — it keeps the visitor on the page.
+ *
+ * Validation is HTML + CSS only. `user-invalid:` (not `:invalid`) means a field
+ * stays neutral until the visitor has actually tried to submit, so nothing is
+ * red on first paint. The browser's own validation bubble still appears on the
+ * first offending field; suppressing that would need novalidate + scripted
+ * messages, which would make validation JS-dependent.
+ */
+interface Props {
+  accessKey: string;
+  class?: string;
+}
+
+const { accessKey, class: className = '' } = Astro.props;
+
+/*
+  The shell from primitives/Card.astro, but on bg-surface. The Contact section
+  is tone="paper", so a bg-paper card would vanish into the section ground. No
+  hover lift either — Card only applies that when it is a link.
+*/
+const shell = 'relative rounded-xl border border-border bg-surface p-5 sm:p-6';
+
+/*
+  min-w-0 lets a field shrink below the textarea's intrinsic `cols` width, which
+  would otherwise push the grid track wider than the viewport. `body` has no
+  overflow-x: hidden on purpose, so that overflow would be a visible bug — see
+  the note in global.css and scripts/check-responsive.mjs.
+*/
+const field =
+  'peer min-h-11 w-full min-w-0 rounded-lg border border-border bg-paper px-3 py-2 text-step-0 text-ink transition-colors placeholder:text-muted/70 user-invalid:border-danger';
+
+const label = 'font-mono text-step-s tracking-[0.14em] text-muted uppercase';
+
+/*
+  Always in the DOM and wired up with aria-describedby, so a screen reader
+  announces it as the field's description. Only the colour changes once the
+  field is genuinely invalid — a hint hidden with display:none is never read.
+*/
+const hint = 'mt-1.5 text-step-s text-muted peer-user-invalid:text-danger';
+
+/*
+  base + primary, copied from primitives/Button.astro. Button is link-only by
+  design (href is required, it renders an <a>), and teaching it to be a <button>
+  for this one caller is more churn than duplicating two class strings.
+*/
+const submit =
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-5 text-step-0 font-medium transition-[transform,background-color,border-color] duration-150 ease-out active:translate-y-px bg-accent text-accent-contrast hover:brightness-95 motion-safe:hover:-translate-y-0.5 disabled:opacity-40';
+---
+
+{/* screen-only: a form is meaningless on paper and in the generated PDF. */}
+<div class:list={[shell, 'screen-only', className]}>
+  <form
+    id="contact-form"
+    method="POST"
+    action="https://api.web3forms.com/submit"
+    class="grid gap-5"
+  >
+    <input type="hidden" name="access_key" value={accessKey} />
+    <input
+      type="hidden"
+      name="subject"
+      value="New message from your portfolio"
+    />
+    <input type="hidden" name="from_name" value="Portfolio contact form" />
+
+    {/*
+      Honeypot. Web3Forms flags submissions that fill it, and requires
+      display:none specifically. Kept out of the tab order and hidden from
+      assistive tech so only bots can ever reach it.
+    */}
+    <input
+      type="checkbox"
+      name="botcheck"
+      class="hidden"
+      tabindex="-1"
+      aria-hidden="true"
+    />
+
+    <div>
+      <label for="cf-name" class={label}>
+        Name
+      </label>
+      <input
+        id="cf-name"
+        name="name"
+        type="text"
+        required
+        minlength="2"
+        maxlength="80"
+        autocomplete="name"
+        placeholder="Your name"
+        aria-describedby="cf-name-hint"
+        class={field}
+      />
+      <p id="cf-name-hint" class={hint}>
+        Required.
+      </p>
+    </div>
+
+    <div>
+      <label for="cf-email" class={label}>
+        Email
+      </label>
+      <input
+        id="cf-email"
+        name="email"
+        type="email"
+        required
+        maxlength="120"
+        autocomplete="email"
+        placeholder="you@company.com"
+        aria-describedby="cf-email-hint"
+        class={field}
+      />
+      <p id="cf-email-hint" class={hint}>
+        A valid address, so I can reply.
+      </p>
+    </div>
+
+    <div>
+      <label for="cf-message" class={label}>
+        Message
+      </label>
+      <textarea
+        id="cf-message"
+        name="message"
+        required
+        minlength="20"
+        maxlength="2000"
+        rows="5"
+        placeholder="What are you building?"
+        aria-describedby="cf-message-hint"
+        class:list={[field, 'resize-y']}
+      ></textarea>
+      <p id="cf-message-hint" class={hint}>
+        At least 20 characters.
+      </p>
+    </div>
+
+    <button type="submit" id="contact-submit" class={submit}>
+      Send message
+    </button>
+  </form>
+
+  {/*
+    Pre-rendered and revealed by toggling `hidden`, rather than built with
+    innerHTML. aria-live announces the outcome without stealing focus.
+  */}
+  <div
+    id="contact-status"
+    role="status"
+    aria-live="polite"
+    hidden
+    class="text-step-0"
+  >
+    <p id="contact-status-text"></p>
+  </div>
+</div>
+
+{/*
+  Top level, NOT wrapped in a {condition && (...)} expression: inside a JSX
+  expression Astro emits the template literal as literal text, shipping invalid
+  JS that throws on load. The "only when a key exists" check lives at the
+  <ContactForm /> call site instead, so this is either wholly present or
+  wholly absent.
+
+  is:inline keeps it out of the bundle graph entirely: no extra request.
+*/}
+<script is:inline>
+  (() => {
+    const form = document.getElementById('contact-form');
+    const status = document.getElementById('contact-status');
+    const statusText = document.getElementById('contact-status-text');
+    const button = document.getElementById('contact-submit');
+    if (!form || !status || !statusText || !button) return;
+
+    const idleLabel = button.textContent;
+
+    form.addEventListener('submit', async (event) => {
+      // Let the browser handle its own constraint UI and block the submit.
+      if (!form.checkValidity()) return;
+      event.preventDefault();
+
+      button.disabled = true;
+      button.textContent = 'Sending…';
+      status.hidden = true;
+
+      const payload = Object.fromEntries(new FormData(form));
+      // Web3Forms answers a `redirect` field with a 3xx, which trips CORS on a
+      // scripted request. It is only there for the no-JS path.
+      delete payload.redirect;
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) throw new Error(String(response.status));
+
+        form.hidden = true;
+        statusText.textContent =
+          "Thanks — your message is on its way. I'll reply within a day or two.";
+        status.hidden = false;
+      } catch {
+        button.disabled = false;
+        button.textContent = idleLabel;
+        statusText.textContent =
+          'Something went wrong sending that. Please email me directly instead.';
+        status.hidden = false;
+      }
+    });
+  })();
+</script>
