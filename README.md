@@ -33,6 +33,19 @@ Everything on the site reads from two places:
 
 To add a project, add an MDX file. To change a job title, edit `resume.ts`.
 
+**Project tiers.** Each project sets `tier`, defaulting to `primary`:
+
+- `primary` — large card in the grid, plus a generated case-study page at
+  `/projects/<id>` and its own OG image.
+- `secondary` — a compact row under "Also built" that links straight out to
+  the repo or live demo. Deliberately lighter: no cover, no chips, no detail
+  page. That visual weight difference _is_ the hierarchy — it stops a weekend
+  project reading as the equal of the flagship.
+
+Both `getStaticPaths` in `src/pages/projects/[...slug].astro` and
+`src/pages/og-preview/[slug].astro` filter to `primary`, so secondary entries
+never generate thin pages or unused share images.
+
 ## Architecture notes
 
 **Zero JS.** Every page ships **0 JavaScript requests**, and `dist/` contains

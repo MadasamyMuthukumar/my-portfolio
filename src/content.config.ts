@@ -22,6 +22,13 @@ const projects = defineCollection({
       cover: image().optional(),
       coverAlt: z.string().optional(),
       featured: z.boolean().default(false),
+      /**
+       * primary   = large card + generated case-study page and OG image
+       * secondary = compact row in "Also built", links straight out
+       *
+       * Defaults to primary so existing entries need no change.
+       */
+      tier: z.enum(['primary', 'secondary']).default('primary'),
       repo: z.url().optional(),
       live: z.url().optional(),
       draft: z.boolean().default(false),

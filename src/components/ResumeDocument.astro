@@ -26,10 +26,14 @@ const { includePhone = false } = Astro.props;
       <a href={`mailto:${profile.email}`}>{profile.email}</a>
     </li>
     <li class="break-anywhere">
-      <a href={profile.linkedin}>linkedin.com/in/madasamy-muthukumar</a>
+      <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
+        linkedin.com/in/madasamy-muthukumar
+      </a>
     </li>
     <li class="break-anywhere">
-      <a href={profile.github}>github.com/MadasamyMuthukumar</a>
+      <a href={profile.github} target="_blank" rel="noopener noreferrer">
+        github.com/MadasamyMuthukumar
+      </a>
     </li>
   </ul>
 </header>

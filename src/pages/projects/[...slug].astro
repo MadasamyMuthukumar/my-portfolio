@@ -9,7 +9,12 @@ import ScrollProgress from '../../components/ScrollProgress.astro';
 import Button from '../../components/primitives/Button.astro';
 
 export async function getStaticPaths() {
-  const projects = await getCollection('projects', ({ data }) => !data.draft);
+  // Primary tier only — secondary projects render as compact rows that link
+  // straight to GitHub, so a detail page for them would be thin and unlinked.
+  const projects = await getCollection(
+    'projects',
+    ({ data }) => !data.draft && data.tier === 'primary',
+  );
   return projects.map((project) => ({
     params: { slug: project.id },
     props: { project },

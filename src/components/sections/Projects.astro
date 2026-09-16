@@ -2,16 +2,29 @@
 import { getCollection } from 'astro:content';
 import Section from '../primitives/Section.astro';
 import ProjectCard from '../ProjectCard.astro';
+import ProjectRow from '../ProjectRow.astro';
 
-// One comparator: featured first, then newest. Chaining two .sort() calls
-// would let the second silently discard the first key.
-const projects = (
-  await getCollection('projects', ({ data }) => !data.draft)
-).sort(
-  (a, b) =>
-    Number(b.data.featured) - Number(a.data.featured) ||
-    b.data.date.valueOf() - a.data.date.valueOf(),
-);
+const all = await getCollection('projects', ({ data }) => !data.draft);
+
+// One comparator, not two chained .sort() calls — the second would silently
+// discard the first key and bury the featured flagship.
+const primary = all
+  .filter((p) => p.data.tier === 'primary')
+  .sort(
+    (a, b) =>
+      Number(b.data.featured) - Number(a.data.featured) ||
+      b.data.date.valueOf() - a.data.date.valueOf(),
+  );
+
+// Anything with a live demo leads: a link the visitor can actually click is
+// worth more than a slightly newer repo.
+const secondary = all
+  .filter((p) => p.data.tier === 'secondary')
+  .sort(
+    (a, b) =>
+      Number(Boolean(b.data.live)) - Number(Boolean(a.data.live)) ||
+      b.data.date.valueOf() - a.data.date.valueOf(),
+  );
 ---
 
 <Section id="work" index="03" label="Work" title="Selected projects">
@@ -23,10 +36,31 @@ const projects = (
     class="grid gap-6"
     style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));"
   >
-    {projects.map((project) => (
+    {primary.map((project) => (
       <li class="reveal">
         <ProjectCard project={project} />
       </li>
     ))}
   </ul>
+
+  {secondary.length > 0 && (
+    <div class="mt-16 sm:mt-20">
+      {/*
+          A sub-heading inside Work, not a section of its own: a new <Section>
+          would renumber Skills/Education/Contact and add a nav anchor for what
+          is really part of the same idea.
+        */}
+      <h3 class="reveal font-mono text-step-s tracking-[0.18em] text-muted uppercase">
+        Also built
+      </h3>
+
+      <ul class="mt-6">
+        {secondary.map((project) => (
+          <li class="reveal">
+            <ProjectRow project={project} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
 </Section>
