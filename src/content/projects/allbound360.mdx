@@ -4,6 +4,8 @@ summary: An end-to-end LinkedIn automation product combining inbound content gro
 role: Full Stack Developer · GoZen Technologies
 period: 2024 — Present
 date: 2025-01-15
+cover: ../../assets/inbound.png
+coverAlt: The Allbound360 inbound content workspace.
 featured: true
 tags:
   - React
@@ -22,6 +24,10 @@ stats:
     value: Multi-tenant with RBAC
 ---
 
+import Figure from '../../components/Figure.astro';
+import inbound from '../../assets/inbound.png';
+import outbound from '../../assets/outbound.png';
+
 Allbound360 is a LinkedIn growth platform built at GoZen Technologies. It
 covers both halves of the funnel — publishing content that attracts inbound
 interest, and running outbound prospecting campaigns against it — inside one
@@ -38,6 +44,12 @@ publishable LinkedIn content. From there the product handles post creation,
 image carousel and video generation, scheduling, and a trackable content
 calendar for planning what goes out and when.
 
+<Figure
+  src={inbound}
+  alt="The inbound workspace: content planning and scheduling across a calendar view."
+  caption="Inbound — planning and scheduling content."
+/>
+
 The interesting frontend problem here was **generation latency**. Producing a
 carousel or a video is not instant, and a spinner for twenty seconds feels
 broken. The generation surfaces stream over **SSE**, so text appears as it is
@@ -49,6 +61,12 @@ each with its own live status.
 
 The outbound half handles lead discovery, campaign sequencing, personalisation,
 follow-ups, and the actual LinkedIn execution.
+
+<Figure
+  src={outbound}
+  alt="The outbound workspace: campaign sequencing and lead management."
+  caption="Outbound — campaign sequencing and lead management."
+/>
 
 Almost none of this can happen in a request cycle. Campaign steps fire on
 schedules, LinkedIn actions have to be paced to stay within platform limits,

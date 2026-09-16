@@ -3,16 +3,30 @@ import { Image } from 'astro:assets';
 
 /**
  * Hero portrait. Falls back to a monogram so the build is never blocked on a
- * photo arriving. Drop a 4:5 image at src/assets/portrait.jpg and import it
- * here to swap in the real thing.
+ * photo arriving.
  */
 interface Props {
   src?: ImageMetadata;
   alt?: string;
   initials?: string;
+  /**
+   * TEMPORARY — photo comparison.
+   *
+   * Pass several images and the card gains an arrow that cycles between them,
+   * so candidates can be judged in place at the real size and crop.
+   *
+   * To remove once a photo is chosen:
+   *   1. drop `sources` here and in Hero.astro, pass the winner as `src`
+   *   2. delete the cycle button and the <script> at the bottom of this file
+   *   3. delete the unused photos from src/assets/
+   */
+  sources?: ImageMetadata[];
 }
 
-const { src, alt = '', initials = 'MM' } = Astro.props;
+const { src, alt = '', initials = 'MM', sources = [] } = Astro.props;
+
+const gallery = sources.length > 0 ? sources : src ? [src] : [];
+const isComparing = gallery.length > 1;
 ---
 
 {/*
@@ -30,7 +44,10 @@ const { src, alt = '', initials = 'MM' } = Astro.props;
   with w-full it fills the 42fr column whenever the column is the tighter of
   the two, which is what happens on tablets.
 */}
-<div class="relative mx-auto w-[min(clamp(7.5rem,46vw,18rem),22vh)] md:mx-0 md:w-full md:max-w-[min(26rem,52vh)]">
+<div
+  id="photo-card"
+  class="relative mx-auto w-[min(clamp(7.5rem,46vw,18rem),22vh)] md:mx-0 md:w-full md:max-w-[min(26rem,52vh)]"
+>
   {/* The one loud use of accent on the page. Card layouts only — at phone
       sizes the photo is a circle and the offset block would read as a smudge. */}
   <div
@@ -39,16 +56,24 @@ const { src, alt = '', initials = 'MM' } = Astro.props;
   ></div>
 
   <div class="relative aspect-square overflow-hidden rounded-full border border-border bg-surface md:aspect-[4/5] md:rounded-2xl">
-    {src ? (
-      <Image
-        src={src}
-        alt={alt}
-        widths={[240, 360, 480, 720]}
-        sizes="(min-width: 768px) 26rem, 46vw"
-        class="h-full w-full object-cover"
-        loading="eager"
-        fetchpriority="high"
-      />
+    {gallery.length > 0 ? (
+      gallery.map((image, i) => (
+        <Image
+          src={image}
+          alt={i === 0 ? alt : ''}
+          widths={[240, 360, 480, 720]}
+          sizes="(min-width: 768px) 26rem, 46vw"
+          class:list={[
+            'h-full w-full object-cover',
+            isComparing && 'absolute inset-0 transition-opacity duration-200',
+            isComparing && i !== 0 && 'opacity-0',
+          ]}
+          data-photo={isComparing ? String(i) : undefined}
+          aria-hidden={isComparing && i !== 0 ? 'true' : undefined}
+          loading="eager"
+          fetchpriority={i === 0 ? 'high' : 'auto'}
+        />
+      ))
     ) : (
       <div class="flex h-full w-full items-center justify-center bg-accent/10">
         <span
@@ -60,4 +85,55 @@ const { src, alt = '', initials = 'MM' } = Astro.props;
       </div>
     )}
   </div>
+
+  {isComparing && (
+    <button
+      type="button"
+      id="photo-cycle"
+      aria-label="Show next photo"
+      class="absolute right-2 bottom-2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-paper/90 text-muted shadow-sm backdrop-blur-sm transition-colors hover:text-accent-text md:right-3 md:bottom-3"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M6 3l5 5-5 5"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+  )}
 </div>
+
+{/*
+  Top level, NOT wrapped in a {condition && (...)} expression: inside a JSX
+  expression Astro emits the template literal as literal text, shipping
+  invalid JS that throws on load. The script guards itself at runtime instead.
+*/}
+<script is:inline>
+  (() => {
+    const btn = document.getElementById('photo-cycle');
+    const shots = [...document.querySelectorAll('[data-photo]')];
+    if (!btn || shots.length < 2) return;
+
+    let i = 0;
+    btn.addEventListener('click', () => {
+      shots[i].classList.add('opacity-0');
+      shots[i].setAttribute('aria-hidden', 'true');
+      i = (i + 1) % shots.length;
+      shots[i].classList.remove('opacity-0');
+      shots[i].removeAttribute('aria-hidden');
+      btn.setAttribute(
+        'aria-label',
+        'Show next photo (' + (i + 1) + ' of ' + shots.length + ')',
+      );
+    });
+  })();
+</script>

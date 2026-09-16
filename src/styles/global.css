@@ -347,10 +347,22 @@ code,
 /* ---------------------------------------------------------------------------
    Case-study prose (MDX output)
    --------------------------------------------------------------------------- */
+/*
+  The measure sits on the TEXT children, not the container. Capping the
+  container instead would trap figures at 64ch too — max-width: none on a
+  child cannot widen it past a constrained parent.
+*/
 .prose-case {
-  max-width: var(--measure);
   color: var(--muted);
   font-size: var(--text-step-0);
+}
+
+.prose-case > p,
+.prose-case > ul,
+.prose-case > ol,
+.prose-case > h2,
+.prose-case > h3 {
+  max-width: var(--measure);
 }
 
 .prose-case > * + * {
@@ -635,4 +647,23 @@ code,
 .card-dot[aria-current='true'] {
   background-color: var(--accent);
   width: 1.25rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Case-study figures
+
+   .prose-case caps text at --measure (64ch) for readability, which would
+   render a 1300px screenshot tiny. Figures opt out of that cap and span the
+   full container instead, while the prose around them stays readable.
+   --------------------------------------------------------------------------- */
+.prose-case figure {
+  max-width: none;
+  margin-block: clamp(2rem, 4vw, 3rem);
+}
+
+.prose-case figcaption {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-step-s);
 }

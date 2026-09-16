@@ -3,6 +3,12 @@ import Container from '../primitives/Container.astro';
 import Button from '../primitives/Button.astro';
 import PhotoCard from '../PhotoCard.astro';
 import { profile } from '../../data/resume';
+
+// TEMPORARY — photo comparison. Once a photo is chosen, replace this with a
+// single import and pass it as `src`, then strip the cycler from PhotoCard.
+import photo1 from '../../assets/img-1.jpg';
+import photo2 from '../../assets/img-2.jpg';
+import photo3 from '../../assets/img-3.jpg';
 ---
 
 <section class="hero-shell" aria-labelledby="hero-heading">
@@ -86,7 +92,10 @@ import { profile } from '../../data/resume';
       </div>
 
       <div class="hero-in order-1 md:order-2" style="animation-delay: 160ms">
-        <PhotoCard alt={`Portrait of ${profile.name}`} />
+        <PhotoCard
+          alt={`Portrait of ${profile.name}`}
+          sources={[photo1, photo2, photo3]}
+        />
       </div>
     </div>
   </Container>
