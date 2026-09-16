@@ -15,7 +15,7 @@ export async function getStaticPaths() {
       params: { slug: 'default' },
       props: {
         eyebrow: `${profile.role} · ${profile.location}`,
-        title: profile.shortName,
+        title: profile.nickname,
         body: profile.tagline,
       },
     },

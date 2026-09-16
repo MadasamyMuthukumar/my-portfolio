@@ -3,23 +3,60 @@
  * Theme toggle. Deliberately NOT a React island — it is one button, and
  * mounting React for it would ship ~210 KB to every page that uses it.
  * `is:inline` keeps this out of the bundle graph entirely: no extra request.
+ *
+ * Icon-only (sun/moon), matching the 44px touch-target floor used elsewhere.
+ * Both icons live in the DOM; CSS shows/hides by [data-theme] so there is no
+ * layout shift and no flash while the toggle script attaches.
  */
 ---
 
 <button
   type="button"
   id="theme-toggle"
-  aria-label="Toggle colour theme"
-  class="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-step-s text-muted transition-colors hover:text-ink"
+  aria-label="Switch to dark theme"
+  class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border text-muted transition-colors hover:text-ink"
 >
-  <span data-theme-label>Theme</span>
+  {/* Sun — shown in light mode, hidden once data-theme="dark". */}
+  <svg
+    data-icon="sun"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="4.5"></circle>
+    <path d="M12 2.5v2.5M12 19v2.5M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2.5 12H5M19 12h2.5M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"></path>
+  </svg>
+
+  {/* Moon — shown once data-theme="dark". */}
+  <svg
+    data-icon="moon"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    class="hidden"
+  >
+    <path d="M20 14.5a8.5 8.5 0 1 1-9-11.9 7 7 0 0 0 9 11.9Z"></path>
+  </svg>
 </button>
 
 <script is:inline>
   (() => {
     const btn = document.getElementById('theme-toggle');
     if (!btn) return;
-    const label = btn.querySelector('[data-theme-label]');
+    const sun = btn.querySelector('[data-icon="sun"]');
+    const moon = btn.querySelector('[data-icon="moon"]');
 
     const current = () =>
       document.documentElement.dataset.theme ||
@@ -28,9 +65,13 @@
         : 'light');
 
     const sync = () => {
-      const next = current() === 'dark' ? 'light' : 'dark';
-      label.textContent = next === 'dark' ? 'Dark mode' : 'Light mode';
-      btn.setAttribute('aria-label', `Switch to ${next} theme`);
+      const isDark = current() === 'dark';
+      sun.classList.toggle('hidden', isDark);
+      moon.classList.toggle('hidden', !isDark);
+      btn.setAttribute(
+        'aria-label',
+        `Switch to ${isDark ? 'light' : 'dark'} theme`,
+      );
     };
 
     sync();

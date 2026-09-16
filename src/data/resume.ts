@@ -7,6 +7,10 @@
 
 export const profile = {
   name: 'Madasamy Muthukumar R',
+  /** Nav brand — full name without the trailing initial. */
+  navName: 'Madasamy Muthukumar',
+  /** Hero greeting only — "Hi, I'm ___". */
+  nickname: 'Maddy',
   shortName: 'Madasamy',
   role: 'Full Stack Developer',
   location: 'Coimbatore, India',
@@ -18,11 +22,11 @@ export const profile = {
 
   /** Hero sub-headline. */
   tagline:
-    'I build AI-powered product interfaces — streaming chat, agent workflows, and the systems that run them.',
+    'I build scalable web and SaaS applications as a full-stack developer — with a focus on AI-powered products, from streaming chat to agent workflows and the systems that run them.',
 
   /** About section. First person, deliberately not résumé-speak. */
   about: [
-    "I'm a full stack developer in Coimbatore, three years into building SaaS products end to end. Most of my recent work sits where AI meets product: retrieval-grounded generation, multi-step agent orchestration, and the streaming interfaces that make them feel immediate.",
+    "I'm a full stack developer in Coimbatore, three years into building SaaS products. Most of my recent work sits where AI meets product: retrieval-grounded generation, multi-step agent orchestration, and the streaming interfaces that make them feel immediate.",
     'I care about the unglamorous parts too — queue reliability, tenant isolation, and frontend that stays fast as features pile up.',
   ],
 

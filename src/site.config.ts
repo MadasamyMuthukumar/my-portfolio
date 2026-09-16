@@ -3,7 +3,7 @@ import { profile, education, experience, skills } from './data/resume';
 /** Identity metadata used for JSON-LD and page meta. */
 export const SITE = {
   name: profile.name,
-  shortName: profile.shortName,
+  shortName: profile.nickname,
   jobTitle: profile.role,
   defaultDescription: profile.tagline,
   locale: 'en',
@@ -17,7 +17,7 @@ export function buildPersonSchema(siteUrl: string) {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: profile.name,
-    alternateName: profile.shortName,
+    alternateName: profile.nickname,
     url: siteUrl,
     jobTitle: profile.role,
     email: `mailto:${profile.email}`,
