@@ -1,0 +1,55 @@
+---
+import Seo from '../components/Seo.astro';
+import { SITE } from '../site.config';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  includePersonSchema?: boolean;
+  noindex?: boolean;
+}
+
+const { title, ...seo } = Astro.props;
+---
+
+<!doctype html>
+<html lang={SITE.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <Seo title={title} {...seo} />
+
+    {/* Runs before first paint so dark mode never flashes white. */}
+    <script is:inline>
+      (() => {
+        try {
+          const stored = localStorage.getItem('theme');
+          if (stored === 'light' || stored === 'dark') {
+            document.documentElement.dataset.theme = stored;
+          }
+        } catch {
+          /* private mode / blocked storage — fall back to system preference */
+        }
+      })();
+    </script>
+  </head>
+
+  <body>
+    <a
+      href="#content"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-bg focus:px-4 focus:py-2 focus:text-fg focus:shadow-lg"
+    >
+      Skip to content
+    </a>
+
+    <main id="content">
+      <slot />
+    </main>
+  </body>
+</html>

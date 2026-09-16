@@ -1,0 +1,103 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+/* Let `dark:` utilities respond to the data-theme attribute set by the
+   pre-paint script in Base.astro. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* `inline` makes the generated utilities reference the custom property rather
+   than copying its value, so the :root overrides below actually propagate. */
+@theme inline {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+}
+
+@theme {
+  /* Fluid type scale — clamp() scales between mobile and desktop without a
+     single media query. */
+  --text-step-s: clamp(0.83rem, 0.17vw + 0.79rem, 0.94rem);
+  --text-step-0: clamp(1rem, 0.34vw + 0.91rem, 1.19rem);
+  --text-step-1: clamp(1.2rem, 0.58vw + 1.05rem, 1.5rem);
+  --text-step-2: clamp(1.44rem, 0.97vw + 1.2rem, 1.9rem);
+  --text-step-3: clamp(1.73rem, 1.56vw + 1.34rem, 2.38rem);
+  --text-step-4: clamp(2.07rem, 2.42vw + 1.47rem, 3rem);
+}
+
+:root {
+  /* Editorial line length — the single biggest readability lever. */
+  --measure: 68ch;
+
+  --bg: #fcfcfc;
+  --fg: #16161a;
+  --muted: #6b6b76;
+  --accent: #2563eb;
+  --border: #e4e4e8;
+
+  color-scheme: light;
+}
+
+/* System preference, unless the user has explicitly chosen light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0e0e11;
+    --fg: #ededf0;
+    --muted: #9a9aa5;
+    --accent: #7aa2f7;
+    --border: #26262d;
+
+    color-scheme: dark;
+  }
+}
+
+/* Explicit user choice always wins. */
+:root[data-theme='dark'] {
+  --bg: #0e0e11;
+  --fg: #ededf0;
+  --muted: #9a9aa5;
+  --accent: #7aa2f7;
+  --border: #26262d;
+
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: var(--text-step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  line-height: 1.15;
+}
+
+p {
+  text-wrap: pretty;
+  max-inline-size: var(--measure);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

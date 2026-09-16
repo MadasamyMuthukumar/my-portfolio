@@ -1,0 +1,65 @@
+---
+import { SITE, SAME_AS } from '../site.config';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Absolute or root-relative path to the social share image. */
+  image?: string;
+  type?: 'website' | 'article';
+  /** Emit the JSON-LD Person schema. Should be true on exactly one page. */
+  includePersonSchema?: boolean;
+  /** Keep the page out of search results. */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = SITE.defaultDescription,
+  image = '/og-default.png',
+  type = 'website',
+  includePersonSchema = false,
+  noindex = false,
+} = Astro.props;
+
+// Astro.site comes from `site` in astro.config.mjs.
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const imageUrl = new URL(image, Astro.site);
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE.name,
+  url: Astro.site?.href,
+  jobTitle: SITE.jobTitle,
+  description: SITE.defaultDescription,
+  sameAs: SAME_AS,
+  knowsAbout: SITE.knowsAbout,
+};
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical.href} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical.href} />
+<meta property="og:image" content={imageUrl.href} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:locale" content={SITE.locale} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl.href} />
+
+{includePersonSchema && (
+  <script
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify(personSchema)}
+  ></script>
+)}

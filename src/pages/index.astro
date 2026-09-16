@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+---
+
+<Base
+  title="Hello World"
+  description="Portfolio — under construction."
+  includePersonSchema
+>
+  <div class="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center gap-6 px-4 py-16">
+    <h1 class="text-step-4 font-semibold tracking-tight">Hello World</h1>
+    <p class="text-muted">
+      Astro 7 · React islands · Tailwind 4 · MDX content collections. The stack
+      is live; the portfolio sections come next.
+    </p>
+    <div>
+      <ThemeToggle />
+    </div>
+  </div>
+</Base>
